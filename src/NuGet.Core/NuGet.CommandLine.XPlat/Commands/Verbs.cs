@@ -6,7 +6,7 @@
 // then re-execute the text template via "run custom tool" on VS context menu for .tt file, or via dotnet-t4 global tool.
 
 using System;
-using Microsoft.Extensions.CommandLineUtils;
+using System.CommandLIne;
 using NuGet.Commands;
 using NuGet.Common;
 
@@ -14,9 +14,10 @@ namespace NuGet.CommandLine.XPlat
 {
     internal partial class AddVerbParser
     {
-        internal static void Register(CommandLineApplication app,
-                                      Func<ILogger> getLogger)
+        internal static void Register(Command app, Func<ILogger> getLogger)
         {
+            var AddCmd = new Command("add");
+            
             app.Command("add", AddCmd =>
             {
                 AddCmd.Command("source", SourceCmd =>
@@ -143,9 +144,11 @@ namespace NuGet.CommandLine.XPlat
 
     internal partial class DisableVerbParser
     {
-        internal static void Register(CommandLineApplication app,
-                                      Func<ILogger> getLogger)
+        internal static void Register(Command app, Func<ILogger> getLogger)
         {
+            var DisableCmd = new Command("disable");
+            
+            
             app.Command("disable", DisableCmd =>
             {
                 DisableCmd.Command("source", SourceCmd =>
@@ -183,9 +186,11 @@ namespace NuGet.CommandLine.XPlat
 
     internal partial class EnableVerbParser
     {
-        internal static void Register(CommandLineApplication app,
-                                      Func<ILogger> getLogger)
+        internal static void Register(Command app, Func<ILogger> getLogger)
         {
+            var EnableCmd = new Command("enable");
+            
+            
             app.Command("enable", EnableCmd =>
             {
                 EnableCmd.Command("source", SourceCmd =>
@@ -223,9 +228,11 @@ namespace NuGet.CommandLine.XPlat
 
     internal partial class ListVerbParser
     {
-        internal static void Register(CommandLineApplication app,
-                                      Func<ILogger> getLogger)
+        internal static void Register(Command app, Func<ILogger> getLogger)
         {
+            var ListCmd = new Command("list");
+            
+            
             app.Command("list", ListCmd =>
             {
                 ListCmd.Command("source", SourceCmd =>
@@ -284,9 +291,11 @@ namespace NuGet.CommandLine.XPlat
 
     internal partial class RemoveVerbParser
     {
-        internal static void Register(CommandLineApplication app,
-                                      Func<ILogger> getLogger)
+        internal static void Register(Command app, Func<ILogger> getLogger)
         {
+            var RemoveCmd = new Command("remove");
+            
+            
             app.Command("remove", RemoveCmd =>
             {
                 RemoveCmd.Command("source", SourceCmd =>
@@ -348,9 +357,11 @@ namespace NuGet.CommandLine.XPlat
 
     internal partial class UpdateVerbParser
     {
-        internal static void Register(CommandLineApplication app,
-                                      Func<ILogger> getLogger)
+        internal static void Register(Command app, Func<ILogger> getLogger)
         {
+            var UpdateCmd = new Command("update");
+            
+            
             app.Command("update", UpdateCmd =>
             {
                 UpdateCmd.Command("source", SourceCmd =>

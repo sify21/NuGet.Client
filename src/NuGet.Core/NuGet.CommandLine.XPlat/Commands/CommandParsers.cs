@@ -6,14 +6,14 @@
 // then re-execute the text template via "run custom tool" on VS context menu for .tt file, or via dotnet-t4 global tool.
 
 using System;
-using Microsoft.Extensions.CommandLineUtils;
+using System.CommandLine;
 using NuGet.Common;
 
 namespace NuGet.CommandLine.XPlat
 {
     internal static class CommandParsers
     {
-        public static void Register(CommandLineApplication app, Func<ILogger> getLogger)
+        public static void Register(Command app, Func<ILogger> getLogger)
         {
             AddVerbParser.Register(app, getLogger);
             DisableVerbParser.Register(app, getLogger);

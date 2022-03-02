@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.CommandLine;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Extensions.CommandLineUtils;
 using NuGet.Common;
 using NuGet.Commands;
 
@@ -162,19 +162,21 @@ namespace NuGet.CommandLine.XPlat
             return exitCode;
         }
 
-
-        private static CommandLineApplication InitializeApp(string[] args, CommandOutputLogger log)
+        // Many commands don't want prefixes output. Use this func instead of () => log to set the HidePrefix property first.
+        private static Func<ILogger> getHidePrefixLogger()
         {
-            // Many commands don't want prefixes output. Use this func instead of () => log to set the HidePrefix property first.
-            Func<ILogger> getHidePrefixLogger = () =>
-            {
-                log.HidePrefixForInfoAndMinimal = true;
-                return log;
-            };
+            log.HidePrefixForInfoAndMinimal = true;
+            return log;
+        }
 
-            // Allow commands to set the NuGet log level
-            Action<LogLevel> setLogLevel = (logLevel) => log.VerbosityLevel = logLevel;
+        private static void setLogLevel(LogLevel logLevel)
+        {
+            log.VerbosityLevel = logLevel;
+        }
 
+
+        private static RootCommand InitializeApp(string[] args, CommandOutputLogger log)
+        {
             var app = new CommandLineApplication();
 
             if (args.Any() && args[0] == "package")
