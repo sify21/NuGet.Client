@@ -6,12 +6,12 @@
     <Noun Name="source" Version="3.1.200"
        Description="adds a new package source to your NuGet configuration files." >
       <Argument Name="Source" LongName="PackageSourcePath" Help="SourcesCommandSourceDescription" />
-      <SingleValueOption Name="name" Shortcut="n" Help="SourcesCommandNameDescription"/>
-      <SingleValueOption Name="username" Shortcut="u" Help="SourcesCommandUsernameDescription"/>
-      <SingleValueOption Name="password" Shortcut="p" Help="SourcesCommandPasswordDescription"/>
-      <SwitchOption Name="store-Password-In-Clear-Text" Help="SourcesCommandStorePasswordInClearTextDescription"/>
-      <SingleValueOption Name="valid-Authentication-Types" Help="SourcesCommandValidAuthenticationTypesDescription" />
-      <SingleValueOption Name="configfile" Help="Option_ConfigFile" />
+      <SingleValueOption Name="name" Shortcut="n" Help="SourcesCommandNameDescription" DataType="string" />
+      <SingleValueOption Name="username" Shortcut="u" Help="SourcesCommandUsernameDescription" DataType="string" />
+      <SingleValueOption Name="password" Shortcut="p" Help="SourcesCommandPasswordDescription" DataType="string" />
+      <SwitchOption Name="store-Password-In-Clear-Text" Help="SourcesCommandStorePasswordInClearTextDescription" DataType="string" />
+      <SingleValueOption Name="valid-Authentication-Types" Help="SourcesCommandValidAuthenticationTypesDescription" DataType="string" />
+      <SingleValueOption Name="configfile" Help="Option_ConfigFile" DataType="FileInfo" />
       <Example Title="Add `nuget.org` as a source:" Command="dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org" />
       <Example Title="Add `c:\packages` as a local source:" Command="dotnet nuget add source c:\packages" />
       <Example Title="Add a source that needs authentication:" Command="dotnet nuget add source https://contoso.com/litware -n myTeam -u myUsername -p myPassword --store-password-in-clear-text" />
@@ -22,15 +22,15 @@
     <Noun Name="client-cert" Version="3.1.200"
        Description="adds a new client certificate to your NuGet configuration files.">
       <SingleValueOption Name="package-source" Shortcut="s" Help="Option_PackageSource"/>
-      <SingleValueOption Name="path" Help="Option_Path"/>
-      <SingleValueOption Name="password" Help="Option_Password"/>
-      <SwitchOption Name="store-password-in-clear-text" Help="Option_StorePasswordInClearText"/>
-      <SingleValueOption Name="store-location" Help="Option_StoreLocation"/>
-      <SingleValueOption Name="store-name" Help="Option_StoreName"/>
-      <SingleValueOption Name="find-by" Help="Option_FindBy"/>
-      <SingleValueOption Name="find-value" Help="Option_FindValue"/>
-      <SwitchOption Name="force" Shortcut="f" Help="Option_Force"/>
-      <SingleValueOption Name="configfile" Help="Option_ConfigFile" />
+      <SingleValueOption Name="path" Help="Option_Path" DataType="FileInfo" />
+      <SingleValueOption Name="password" Help="Option_Password" DataType="string" />
+      <SwitchOption Name="store-password-in-clear-text" Help="Option_StorePasswordInClearText" DataType="bool" />
+      <SingleValueOption Name="store-location" Help="Option_StoreLocation" DataType="string" />
+      <SingleValueOption Name="store-name" Help="Option_StoreName" DataType="string" />
+      <SingleValueOption Name="find-by" Help="Option_FindBy" DataType="string" />
+      <SingleValueOption Name="find-value" Help="Option_FindValue" DataType="string" />
+      <SwitchOption Name="force" Shortcut="f" Help="Option_Force" DataType="bool" />
+      <SingleValueOption Name="configfile" Help="Option_ConfigFile" DataType="FileInfo" />
     </Noun>
   </Verb>
   <Verb Name="disable">

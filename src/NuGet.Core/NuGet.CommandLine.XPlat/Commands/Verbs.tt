@@ -19,7 +19,7 @@
 // then re-execute the text template via "run custom tool" on VS context menu for .tt file, or via dotnet-t4 global tool.
 
 using System;
-using System.CommandLIne;
+using System.CommandLine;
 using NuGet.Commands;
 using NuGet.Common;
 
@@ -30,17 +30,14 @@ namespace NuGet.CommandLine.XPlat
 foreach (XElement verb in commands.Descendants(XName.Get("Verb","")))
 {
     string commandName = verb.Attribute(XName.Get("Name", "")).Value;
-    string  commandFormalName = StringUtilities.InitCaps(commandName);
+    string commandFormalName = StringUtilities.InitCaps(commandName);
 #>
     internal partial class <#= commandFormalName #>VerbParser
     {
         internal static void Register(Command app, Func<ILogger> getLogger)
         {
             var <#= commandFormalName #>Cmd = new Command("<#= commandName #>");
-            
-            
-            app.Command("<#= commandName #>", <#= commandFormalName #>Cmd =>
-            {
+
 <#
     // Look for options directly under the verb
     foreach (XElement option in verb.Descendants())
@@ -54,31 +51,28 @@ foreach (XElement verb in commands.Descendants(XName.Get("Verb","")))
         if (data.BaseClass == "Argument")
         {
 #>
-                CommandArgument <#= data.FormalName #> = <#= commandFormalName #>Cmd.Argument("<#= data.LongNameOrName #>", <#= data.Help #>);
+            <#= commandFormalName #>Cmd.AddArgument(new Argument<object>("<#= data.LongNameOrName #>"));
 <#
         }
         else if (data.BaseClass == "Option")
         {
 #>
-                CommandOption <#= data.FormalName #> = <#= commandFormalName #>Cmd.Option(
-                    "<#= data.ShortcutString #>",
-                    <#= data.Help #>,
-                    CommandOptionType.<#= data.OptionType #>);
+            var <#= data.FormalName #>Option = new Option<object>("<#= data.LongNameOrName #>", description: <#= data.Help #>);
+            <#= data.FormalName #>Option.Arity = <#= data.OptionType #>;
+            <#= commandFormalName #>Cmd.AddOption(<#= data.FormalName #>Option);
 <#
         }
     }
-#>
-<#
+
     foreach (XElement noun in verb.Descendants(XName.Get("Noun")))
     {
         string nounName = noun.Attribute(XName.Get("Name", ""))?.Value;
         string nounFormalName = StringUtilities.InitCaps(nounName);
         nounFormalName = nounFormalName.Replace("-", "");
-        if (nounName != null)
+        if (nounFormalName != null)
         {
 #>
-                <#= commandFormalName #>Cmd.Command("<#= nounName #>", <#= nounFormalName #>Cmd =>
-                {
+            var <#= nounFormalName #>Cmd = new Command(name: "<#= nounName #>", description: Strings.<#= commandFormalName #><#= nounFormalName #>CommandDescription);
 <#
         }
 
@@ -89,23 +83,37 @@ foreach (XElement verb in commands.Descendants(XName.Get("Verb","")))
             if (data.BaseClass == "Argument")
             {
 #>
-                    CommandArgument <#= data.FormalName #> = <#= nounFormalName #>Cmd.Argument(
-                        "<#= data.LongNameOrName #>", <#= data.Help #>);
+            var <#= data.FormalName #>Arg = new Argument<object>(name: "<#= data.LongNameOrName #>", description: <#= data.Help #>);
+            <#= nounFormalName #>Cmd.AddArgument(<#= data.FormalName #>Arg);
 <#
             }
             else if (data.BaseClass == "Option")
             {
+                if (data.HasShortcut)
+                {
 #>
-                    CommandOption <#= data.FormalName #> = <#= nounFormalName #>Cmd.Option(
-                        "<#= data.ShortcutString #>",
-                        <#= data.Help #>,
-                        CommandOptionType.<#= data.OptionType #>);
+            var <#= data.FormalName #>Option = new Option<object>(aliases: new[] { "<#= data.ShortcutName #>", "<#= data.FullName #>" }, description: <#= data.Help #>)
+<# 
+                }
+                else
+                {
+#>
+            var <#= data.FormalName #>Option = new Option<object>(name: "<#= data.FullName #>", description: <#= data.Help #>)
+<#
+                }
+#>
+            {
+                Arity = <#= data.OptionType #>,
+            };
+            <#= nounFormalName #>Cmd.AddOption(<#= data.FormalName #>Option);
 <#
             }
         }
 #>
-                    <#= nounFormalName #>Cmd.HelpOption("-h|--help");
-                    <#= nounFormalName #>Cmd.Description = Strings.<#= commandFormalName #><#= nounFormalName #>CommandDescription;
+
+            <#= nounFormalName #>.AddHandler();
+
+                    // <#= nounFormalName #>Cmd.HelpOption("-h|--help");
                     <#= nounFormalName #>Cmd.OnExecute(() =>
                     {
                         var args = new <#= commandFormalName #><#= nounFormalName #>Args()
@@ -188,7 +196,7 @@ foreach (XElement verb in commands.Descendants(XName.Get("Verb","")))
                 <#= commandFormalName #>Cmd.HelpOption("-h|--help");
                 <#= commandFormalName #>Cmd.Description = Strings.<#= commandFormalName #>_Description;
                 <#= commandFormalName #>Cmd.OnExecute(() =>
-                {
+                { // Begin Handler
 <#
         bool verbHasOptions = false;
         foreach (XElement option in verb.Descendants())
@@ -249,8 +257,7 @@ foreach (XElement verb in commands.Descendants(XName.Get("Verb","")))
 <#
         }
 #>
-                });
-            });
+                }); // End Handler
         }
     }
 
@@ -274,15 +281,15 @@ public class OptionData
         {
             case "SingleValueOption":
                 BaseClass = "Option";
-                OptionType = "SingleValue";
+                OptionType = "ArgumentArity.ZeroOrOne";
                 break;
             case "SwitchOption":
                 BaseClass = "Option";
-                OptionType = "NoValue";
+                OptionType = "ArgumentArity.Zero";
                 break;
             case "Value":
                 BaseClass = "Option";
-                OptionType = "Value";
+                OptionType = "ArgumentArity.ExactlyOne";
                 break;
             case "Argument":
                 BaseClass = "Argument";
@@ -308,7 +315,10 @@ public class OptionData
     public string Shortcut { get; set; }
     public string Help { get; set; }
     public bool IsRequired { get; set; }
-    public string ShortcutString { get { return (Shortcut != null ? "-" + Shortcut + "|" : "") + "--" + Name.ToLower(); } }
+    public string ShortcutString { get { return (HasShortcut? ShortcutName + "|" + FullName : FullName); } }
+    public bool HasShortcut { get { return Shortcut != null; } }
+    public string ShortcutName { get { return "-" + Shortcut; } }
+    public string FullName { get { return "--" + Name.ToLower(); } }
 
 }
 
