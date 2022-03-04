@@ -6,67 +6,9 @@
 <#@ import namespace="System.Globalization" #>
 <#@ import namespace="System.Xml.Linq" #>
 <#@ import namespace="System.Linq" #>
+<#@ include file="Utils.tt" #>
 <#@ output extension=".cs" #>
 <#
-    string InitCaps(string input)
-    {
-        if (input == null) 
-        {
-            return null;
-        }
-
-        var textInfo = CultureInfo.InvariantCulture.TextInfo;
-        var output = textInfo.ToTitleCase(input);
-        
-        return output;
-    }
-
-    bool IsArgument(string type)
-    {
-        return type == "Argument";
-    }
-
-    bool IsOption(string type)
-    {
-        return type == "Option";
-    }
-
-    string GetProperty(XElement element)
-    {
-        switch (element.Name.LocalName)
-        {
-            case "SingleValueOption":
-                return "Option";
-            case "SwitchOption":
-                return "Option";
-            case "Value":
-                return "Option";
-            case "Argument":
-                return "Argument";
-            case "Example":
-                return "Example";
-            case "SeeAlso":
-                return "SeeAlso";
-            default:
-                return "Unknown Element Type " + element.Name.LocalName;
-        }
-    }
-
-    string GetOptionType(XElement element)
-    {
-        switch (element.Name.LocalName)
-        {
-            case "SingleValueOption":
-                return "SingleValue";
-            case "SwitchOption":
-                return "NoValue";
-            case "Value":
-                return "Value";
-            default:
-                return "Unknown Element Type " + element.Name.LocalName;
-        }
-    }
-
     string commandFile = this.Host.ResolvePath("Commands.xml");
     XDocument commands = XDocument.Load(commandFile);
 #>

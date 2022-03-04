@@ -18,40 +18,48 @@ namespace NuGet.CommandLine.XPlat
         {
             var AddCmd = new Command("add");
 
+            // Options directly under the verb
+
+            // nouns added as sub-commands, e.g. add "client-cert"
             var SourceCmd = new Command(name: "source", description: Strings.AddSourceCommandDescription);
-            var SourceArg = new Argument<object>(name: "PackageSourcePath", description: Strings.SourcesCommandSourceDescription);
+            var SourceArg = new Argument<string>(name: "PackageSourcePath", description: Strings.SourcesCommandSourceDescription);
             SourceCmd.AddArgument(SourceArg);
-            var nameOption = new Option<object>(aliases: new[] { "-n", "--name" }, description: Strings.SourcesCommandNameDescription)
+            var nameOption = new Option<string>(aliases: new[] { "-n", "--name" }, description: Strings.SourcesCommandNameDescription)
             {
                 Arity = ArgumentArity.ZeroOrOne,
             };
             SourceCmd.AddOption(nameOption);
-            var usernameOption = new Option<object>(aliases: new[] { "-u", "--username" }, description: Strings.SourcesCommandUsernameDescription)
+            var usernameOption = new Option<string>(aliases: new[] { "-u", "--username" }, description: Strings.SourcesCommandUsernameDescription)
             {
                 Arity = ArgumentArity.ZeroOrOne,
             };
             SourceCmd.AddOption(usernameOption);
-            var passwordOption = new Option<object>(aliases: new[] { "-p", "--password" }, description: Strings.SourcesCommandPasswordDescription)
+            var passwordOption = new Option<string>(aliases: new[] { "-p", "--password" }, description: Strings.SourcesCommandPasswordDescription)
             {
                 Arity = ArgumentArity.ZeroOrOne,
             };
             SourceCmd.AddOption(passwordOption);
-            var storePasswordInClearTextOption = new Option<object>(name: "--store-password-in-clear-text", description: Strings.SourcesCommandStorePasswordInClearTextDescription)
+            var storePasswordInClearTextOption = new Option<bool>(name: "--store-password-in-clear-text", description: Strings.SourcesCommandStorePasswordInClearTextDescription);
             {
                 Arity = ArgumentArity.Zero,
             };
             SourceCmd.AddOption(storePasswordInClearTextOption);
-            var validAuthenticationTypesOption = new Option<object>(name: "--valid-authentication-types", description: Strings.SourcesCommandValidAuthenticationTypesDescription)
+            var validAuthenticationTypesOption = new Option<string>(name: "--valid-authentication-types", description: Strings.SourcesCommandValidAuthenticationTypesDescription);
             {
                 Arity = ArgumentArity.ZeroOrOne,
             };
             SourceCmd.AddOption(validAuthenticationTypesOption);
-            var configfileOption = new Option<object>(name: "--configfile", description: Strings.Option_ConfigFile)
+            var configfileOption = new Option<FileInfo>(name: "--configfile", description: Strings.Option_ConfigFile);
             {
                 Arity = ArgumentArity.ZeroOrOne,
             };
             SourceCmd.AddOption(configfileOption);
-            // SourceCmd.HelpOption("-h|--help");
+            ///////////////////// HANDLER /////////////////////
+
+
+            Source.AddHandler();
+
+            ///////////////////// HANDLER /////////////////////
                     SourceCmd.OnExecute(() =>
                     {
                         var args = new AddSourceArgs()
@@ -64,383 +72,4 @@ namespace NuGet.CommandLine.XPlat
                     });
                 });
             var ClientCertCmd = new Command(name: "client-cert", description: Strings.AddClientCertCommandDescription);
-            var packagesourceOption = new Option<object>(aliases: new[] { "-s", "--package-source" }, description: Strings.Option_PackageSource)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            ClientCertCmd.AddOption(packagesourceOption);
-            var pathOption = new Option<object>(name: "--path", description: Strings.Option_Path)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            ClientCertCmd.AddOption(pathOption);
-            var passwordOption = new Option<object>(name: "--password", description: Strings.Option_Password)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            ClientCertCmd.AddOption(passwordOption);
-            var storepasswordincleartextOption = new Option<object>(name: "--store-password-in-clear-text", description: Strings.Option_StorePasswordInClearText)
-            {
-                Arity = ArgumentArity.Zero,
-            };
-            ClientCertCmd.AddOption(storepasswordincleartextOption);
-            var storelocationOption = new Option<object>(name: "--store-location", description: Strings.Option_StoreLocation)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            ClientCertCmd.AddOption(storelocationOption);
-            var storenameOption = new Option<object>(name: "--store-name", description: Strings.Option_StoreName)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            ClientCertCmd.AddOption(storenameOption);
-            var findbyOption = new Option<object>(name: "--find-by", description: Strings.Option_FindBy)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            ClientCertCmd.AddOption(findbyOption);
-            var findvalueOption = new Option<object>(name: "--find-value", description: Strings.Option_FindValue)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            ClientCertCmd.AddOption(findvalueOption);
-            var forceOption = new Option<object>(aliases: new[] { "-f", "--force" }, description: Strings.Option_Force)
-            {
-                Arity = ArgumentArity.Zero,
-            };
-            ClientCertCmd.AddOption(forceOption);
-            var configfileOption = new Option<object>(name: "--configfile", description: Strings.Option_ConfigFile)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            ClientCertCmd.AddOption(configfileOption);
-            // ClientCertCmd.HelpOption("-h|--help");
-                    ClientCertCmd.OnExecute(() =>
-                    {
-                        var args = new AddClientCertArgs()
-                        {
-                        };
-
-                        AddClientCertRunner.Run(args, getLogger);
-                        return 0;
-                    });
-                });
-                AddCmd.HelpOption("-h|--help");
-                AddCmd.Description = Strings.Add_Description;
-                AddCmd.OnExecute(() =>
-                { // Begin Handler
-                    app.ShowHelp("add");
-                    return 0;
-                }); // End Handler
-        }
-    }
-
-    internal partial class DisableVerbParser
-    {
-        internal static void Register(Command app, Func<ILogger> getLogger)
-        {
-            var DisableCmd = new Command("disable");
-
-            var SourceCmd = new Command(name: "source", description: Strings.DisableSourceCommandDescription);
-            var nameArg = new Argument<object>(name: "name", description: Strings.SourcesCommandNameDescription);
-            SourceCmd.AddArgument(nameArg);
-            var configfileOption = new Option<object>(name: "--configfile", description: Strings.Option_ConfigFile)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            SourceCmd.AddOption(configfileOption);
-            // SourceCmd.HelpOption("-h|--help");
-                    SourceCmd.OnExecute(() =>
-                    {
-                        var args = new DisableSourceArgs()
-                        {
-                            Name = name.Value,
-                        };
-
-                        DisableSourceRunner.Run(args, getLogger);
-                        return 0;
-                    });
-                });
-                DisableCmd.HelpOption("-h|--help");
-                DisableCmd.Description = Strings.Disable_Description;
-                DisableCmd.OnExecute(() =>
-                { // Begin Handler
-                    app.ShowHelp("disable");
-                    return 0;
-                }); // End Handler
-        }
-    }
-
-    internal partial class EnableVerbParser
-    {
-        internal static void Register(Command app, Func<ILogger> getLogger)
-        {
-            var EnableCmd = new Command("enable");
-
-            var SourceCmd = new Command(name: "source", description: Strings.EnableSourceCommandDescription);
-            var nameArg = new Argument<object>(name: "name", description: Strings.SourcesCommandNameDescription);
-            SourceCmd.AddArgument(nameArg);
-            var configfileOption = new Option<object>(name: "--configfile", description: Strings.Option_ConfigFile)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            SourceCmd.AddOption(configfileOption);
-            // SourceCmd.HelpOption("-h|--help");
-                    SourceCmd.OnExecute(() =>
-                    {
-                        var args = new EnableSourceArgs()
-                        {
-                            Name = name.Value,
-                        };
-
-                        EnableSourceRunner.Run(args, getLogger);
-                        return 0;
-                    });
-                });
-                EnableCmd.HelpOption("-h|--help");
-                EnableCmd.Description = Strings.Enable_Description;
-                EnableCmd.OnExecute(() =>
-                { // Begin Handler
-                    app.ShowHelp("enable");
-                    return 0;
-                }); // End Handler
-        }
-    }
-
-    internal partial class ListVerbParser
-    {
-        internal static void Register(Command app, Func<ILogger> getLogger)
-        {
-            var ListCmd = new Command("list");
-
-            var SourceCmd = new Command(name: "source", description: Strings.ListSourceCommandDescription);
-            var formatOption = new Option<object>(name: "--format", description: Strings.SourcesCommandFormatDescription)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            SourceCmd.AddOption(formatOption);
-            var configfileOption = new Option<object>(name: "--configfile", description: Strings.Option_ConfigFile)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            SourceCmd.AddOption(configfileOption);
-            // SourceCmd.HelpOption("-h|--help");
-                    SourceCmd.OnExecute(() =>
-                    {
-                        var args = new ListSourceArgs()
-                        {
-                        };
-
-                        ListSourceRunner.Run(args, getLogger);
-                        return 0;
-                    });
-                });
-            var ClientCertCmd = new Command(name: "client-cert", description: Strings.ListClientCertCommandDescription);
-            var configfileOption = new Option<object>(name: "--configfile", description: Strings.Option_ConfigFile)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            ClientCertCmd.AddOption(configfileOption);
-            // ClientCertCmd.HelpOption("-h|--help");
-                    ClientCertCmd.OnExecute(() =>
-                    {
-                        var args = new ListClientCertArgs()
-                        {
-                        };
-
-                        ListClientCertRunner.Run(args, getLogger);
-                        return 0;
-                    });
-                });
-                ListCmd.HelpOption("-h|--help");
-                ListCmd.Description = Strings.List_Description;
-                ListCmd.OnExecute(() =>
-                { // Begin Handler
-                    app.ShowHelp("list");
-                    return 0;
-                }); // End Handler
-        }
-    }
-
-    internal partial class RemoveVerbParser
-    {
-        internal static void Register(Command app, Func<ILogger> getLogger)
-        {
-            var RemoveCmd = new Command("remove");
-
-            var SourceCmd = new Command(name: "source", description: Strings.RemoveSourceCommandDescription);
-            var nameArg = new Argument<object>(name: "name", description: Strings.SourcesCommandNameDescription);
-            SourceCmd.AddArgument(nameArg);
-            var configfileOption = new Option<object>(name: "--configfile", description: Strings.Option_ConfigFile)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            SourceCmd.AddOption(configfileOption);
-            // SourceCmd.HelpOption("-h|--help");
-                    SourceCmd.OnExecute(() =>
-                    {
-                        var args = new RemoveSourceArgs()
-                        {
-                            Name = name.Value,
-                        };
-
-                        RemoveSourceRunner.Run(args, getLogger);
-                        return 0;
-                    });
-                });
-            var ClientCertCmd = new Command(name: "client-cert", description: Strings.RemoveClientCertCommandDescription);
-            var packagesourceOption = new Option<object>(aliases: new[] { "-s", "--package-source" }, description: Strings.Option_PackageSource)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            ClientCertCmd.AddOption(packagesourceOption);
-            var configfileOption = new Option<object>(name: "--configfile", description: Strings.Option_ConfigFile)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            ClientCertCmd.AddOption(configfileOption);
-            // ClientCertCmd.HelpOption("-h|--help");
-                    ClientCertCmd.OnExecute(() =>
-                    {
-                        var args = new RemoveClientCertArgs()
-                        {
-                        };
-
-                        RemoveClientCertRunner.Run(args, getLogger);
-                        return 0;
-                    });
-                });
-                RemoveCmd.HelpOption("-h|--help");
-                RemoveCmd.Description = Strings.Remove_Description;
-                RemoveCmd.OnExecute(() =>
-                { // Begin Handler
-                    app.ShowHelp("remove");
-                    return 0;
-                }); // End Handler
-        }
-    }
-
-    internal partial class UpdateVerbParser
-    {
-        internal static void Register(Command app, Func<ILogger> getLogger)
-        {
-            var UpdateCmd = new Command("update");
-
-            var SourceCmd = new Command(name: "source", description: Strings.UpdateSourceCommandDescription);
-            var nameArg = new Argument<object>(name: "name", description: Strings.SourcesCommandNameDescription);
-            SourceCmd.AddArgument(nameArg);
-            var sourceOption = new Option<object>(aliases: new[] { "-s", "--source" }, description: Strings.SourcesCommandSourceDescription)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            SourceCmd.AddOption(sourceOption);
-            var usernameOption = new Option<object>(aliases: new[] { "-u", "--username" }, description: Strings.SourcesCommandUsernameDescription)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            SourceCmd.AddOption(usernameOption);
-            var passwordOption = new Option<object>(aliases: new[] { "-p", "--password" }, description: Strings.SourcesCommandPasswordDescription)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            SourceCmd.AddOption(passwordOption);
-            var storePasswordInClearTextOption = new Option<object>(name: "--store-password-in-clear-text", description: Strings.SourcesCommandStorePasswordInClearTextDescription)
-            {
-                Arity = ArgumentArity.Zero,
-            };
-            SourceCmd.AddOption(storePasswordInClearTextOption);
-            var validAuthenticationTypesOption = new Option<object>(name: "--valid-authentication-types", description: Strings.SourcesCommandValidAuthenticationTypesDescription)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            SourceCmd.AddOption(validAuthenticationTypesOption);
-            var configfileOption = new Option<object>(name: "--configfile", description: Strings.Option_ConfigFile)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            SourceCmd.AddOption(configfileOption);
-            // SourceCmd.HelpOption("-h|--help");
-                    SourceCmd.OnExecute(() =>
-                    {
-                        var args = new UpdateSourceArgs()
-                        {
-                            Name = name.Value,
-                        };
-
-                        UpdateSourceRunner.Run(args, getLogger);
-                        return 0;
-                    });
-                });
-            var ClientCertCmd = new Command(name: "client-cert", description: Strings.UpdateClientCertCommandDescription);
-            var packagesourceOption = new Option<object>(aliases: new[] { "-s", "--package-source" }, description: Strings.Option_PackageSource)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            ClientCertCmd.AddOption(packagesourceOption);
-            var pathOption = new Option<object>(name: "--path", description: Strings.Option_Path)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            ClientCertCmd.AddOption(pathOption);
-            var passwordOption = new Option<object>(name: "--password", description: Strings.Option_Password)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            ClientCertCmd.AddOption(passwordOption);
-            var storepasswordincleartextOption = new Option<object>(name: "--store-password-in-clear-text", description: Strings.Option_StorePasswordInClearText)
-            {
-                Arity = ArgumentArity.Zero,
-            };
-            ClientCertCmd.AddOption(storepasswordincleartextOption);
-            var storelocationOption = new Option<object>(name: "--store-location", description: Strings.Option_StoreLocation)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            ClientCertCmd.AddOption(storelocationOption);
-            var storenameOption = new Option<object>(name: "--store-name", description: Strings.Option_StoreName)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            ClientCertCmd.AddOption(storenameOption);
-            var findbyOption = new Option<object>(name: "--find-by", description: Strings.Option_FindBy)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            ClientCertCmd.AddOption(findbyOption);
-            var findvalueOption = new Option<object>(name: "--find-value", description: Strings.Option_FindValue)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            ClientCertCmd.AddOption(findvalueOption);
-            var forceOption = new Option<object>(aliases: new[] { "-f", "--force" }, description: Strings.Option_Force)
-            {
-                Arity = ArgumentArity.Zero,
-            };
-            ClientCertCmd.AddOption(forceOption);
-            var configfileOption = new Option<object>(name: "--configfile", description: Strings.Option_ConfigFile)
-            {
-                Arity = ArgumentArity.ZeroOrOne,
-            };
-            ClientCertCmd.AddOption(configfileOption);
-            // ClientCertCmd.HelpOption("-h|--help");
-                    ClientCertCmd.OnExecute(() =>
-                    {
-                        var args = new UpdateClientCertArgs()
-                        {
-                        };
-
-                        UpdateClientCertRunner.Run(args, getLogger);
-                        return 0;
-                    });
-                });
-                UpdateCmd.HelpOption("-h|--help");
-                UpdateCmd.Description = Strings.Update_Description;
-                UpdateCmd.OnExecute(() =>
-                { // Begin Handler
-                    app.ShowHelp("update");
-                    return 0;
-                }); // End Handler
-        }
-    }
-
-}
+            var packagesourceOption = new Option<
