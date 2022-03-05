@@ -28,15 +28,14 @@ namespace NuGet.Commands
 {
 <#
     // VerbNounArgs class
-     foreach (XElement verb in commands.Descendants(XName.Get("Verb","")))
-     {
+    foreach (XElement verb in commands.Descendants(XName.Get("Verb","")))
+    {
         string verbName = verb.Attribute(XName.Get("Name", "")).Value;
         string verbFormalName = InitCaps(verbName);
         foreach (XElement noun in verb.Descendants(XName.Get("Noun")))
         {
             string nounName = noun.Attribute(XName.Get("Name", ""))?.Value;
-            string nounFormalName = InitCaps(nounName);
-            nounFormalName = nounFormalName.Replace("-", "");
+            string nounFormalName = StringUtilities.GetFormalName(nounName);
 #>
     public partial class <#= verbFormalName #><#= nounFormalName #>Args
     {
@@ -46,9 +45,7 @@ namespace NuGet.Commands
                 if (IsArgumentOrOption(GetProperty(option)))
                 {
                     string optionName = option.Attribute(XName.Get("Name", ""))?.Value;
-                    string optionType = option.Attribute(XName.Get("Type", ""))?.Value;
-                    string optionFormalName = InitCaps(optionName);
-                    optionFormalName = optionFormalName.Replace("-", "");
+                    string optionFormalName = StringUtilities.GetFormalName(optionName);
 #>
         public <#= GetClrType(option) #> <#= optionFormalName #> { get; set; }
 <#

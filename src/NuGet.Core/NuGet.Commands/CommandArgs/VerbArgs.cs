@@ -20,13 +20,13 @@ namespace NuGet.Commands
         public string Password { get; set; }
         public bool StorePasswordInClearText { get; set; }
         public string ValidAuthenticationTypes { get; set; }
-        public FileInfo Configfile { get; set; }
+        public string Configfile { get; set; }
     }
 
     public partial class AddClientCertArgs
     {
         public string PackageSource { get; set; }
-        public FileInfo Path { get; set; }
+        public string Path { get; set; }
         public string Password { get; set; }
         public bool StorePasswordInClearText { get; set; }
         public string StoreLocation { get; set; }
@@ -34,25 +34,25 @@ namespace NuGet.Commands
         public string FindBy { get; set; }
         public string FindValue { get; set; }
         public bool Force { get; set; }
-        public FileInfo Configfile { get; set; }
+        public string Configfile { get; set; }
     }
 
     public partial class DisableSourceArgs
     {
         public string Name { get; set; }
-        public FileInfo Configfile { get; set; }
+        public string Configfile { get; set; }
     }
 
     public partial class EnableSourceArgs
     {
         public string Name { get; set; }
-        public FileInfo Configfile { get; set; }
+        public string Configfile { get; set; }
     }
 
     public partial class ListSourceArgs
     {
         public string Format { get; set; }
-        public FileInfo Configfile { get; set; }
+        public string Configfile { get; set; }
     }
 
     public partial class ListClientCertArgs
@@ -62,7 +62,7 @@ namespace NuGet.Commands
 
     public partial class RemoveSourceArgs
     {
-        public object Name { get; set; }
+        public string Name { get; set; }
         public string Configfile { get; set; }
     }
 
@@ -74,7 +74,7 @@ namespace NuGet.Commands
 
     public partial class UpdateSourceArgs
     {
-        public object Name { get; set; }
+        public string Name { get; set; }
         public string Source { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }

@@ -94,7 +94,7 @@ namespace NuGet.CommandLine.XPlat
 
             try
             {
-                exitCode = app.Execute(args);
+                exitCode = app.Invoke(args);
             }
             catch (Exception e)
             {
@@ -162,22 +162,19 @@ namespace NuGet.CommandLine.XPlat
             return exitCode;
         }
 
-        // Many commands don't want prefixes output. Use this func instead of () => log to set the HidePrefix property first.
-        private static Func<ILogger> getHidePrefixLogger()
-        {
-            log.HidePrefixForInfoAndMinimal = true;
-            return log;
-        }
-
-        private static void setLogLevel(LogLevel logLevel)
-        {
-            log.VerbosityLevel = logLevel;
-        }
-
-
         private static RootCommand InitializeApp(string[] args, CommandOutputLogger log)
         {
-            var app = new CommandLineApplication();
+            var app = new Command("nuget"); // TODO, check name
+            // Many commands don't want prefixes output. Use this func instead of () => log to set the HidePrefix property first.
+            var getHidePrefixLogger = new Func<ILogger>(() =>
+            {
+                log.HidePrefixForInfoAndMinimal = true;
+                return log;
+            });
+            var SetLogLevel = new Action<LogLevel>((logLevel) =>
+            {
+                log.VerbosityLevel = logLevel;
+            });
 
             if (args.Any() && args[0] == "package")
             {
@@ -185,7 +182,7 @@ namespace NuGet.CommandLine.XPlat
                 app.Name = DotnetPackageAppName;
                 AddPackageReferenceCommand.Register(app, () => log, () => new AddPackageReferenceCommandRunner());
                 RemovePackageReferenceCommand.Register(app, () => log, () => new RemovePackageReferenceCommandRunner());
-                ListPackageCommand.Register(app, getHidePrefixLogger, setLogLevel, () => new ListPackageCommandRunner());
+                ListPackageCommand.Register(app, getHidePrefixLogger, SetLogLevel, () => new ListPackageCommandRunner());
             }
             else
             {
@@ -195,14 +192,17 @@ namespace NuGet.CommandLine.XPlat
                 DeleteCommand.Register(app, getHidePrefixLogger);
                 PushCommand.Register(app, getHidePrefixLogger);
                 LocalsCommand.Register(app, getHidePrefixLogger);
-                VerifyCommand.Register(app, getHidePrefixLogger, setLogLevel, () => new VerifyCommandRunner());
-                TrustedSignersCommand.Register(app, getHidePrefixLogger, setLogLevel);
-                SignCommand.Register(app, getHidePrefixLogger, setLogLevel, () => new SignCommandRunner());
+                VerifyCommand.Register(app, getHidePrefixLogger, SetLogLevel, () => new VerifyCommandRunner());
+                TrustedSignersCommand.Register(app, getHidePrefixLogger, SetLogLevel);
+                SignCommand.Register(app, getHidePrefixLogger, SetLogLevel, () => new SignCommandRunner());
             }
 
             app.FullName = Strings.App_FullName;
             app.HelpOption(XPlatUtility.HelpOption);
             app.VersionOption("--version", typeof(Program).GetTypeInfo().Assembly.GetName().Version.ToString());
+
+            var textInfo = CultureInfo.InvariantCulture.TextInfo;
+            var str = "xxx";
 
             return app;
         }

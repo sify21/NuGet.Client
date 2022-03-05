@@ -6,6 +6,7 @@
 <#@ import namespace="System.Globalization" #>
 <#@ import namespace="System.Xml.Linq" #>
 <#@ import namespace="System.Linq" #>
+
 <#@ include file="Utils.tt" #>
 <#@ output extension=".cs" #>
 <#
@@ -21,6 +22,7 @@
 
 using System;
 using System.CommandLine;
+using System.CommandLine.NamingConventionBinder;
 using NuGet.Commands;
 using NuGet.Common;
 
@@ -31,244 +33,56 @@ namespace NuGet.CommandLine.XPlat
 foreach (XElement verb in commands.Descendants(XName.Get("Verb","")))
 {
     string commandName = verb.Attribute(XName.Get("Name", "")).Value;
-    string commandFormalName = StringUtilities.InitCaps(commandName);
+    string commandFormalName = InitCaps(commandName);
+    string commandFormalNameVar = commandFormalName + "Cmd";
 #>
     internal partial class <#= commandFormalName #>VerbParser
     {
         internal static void Register(Command app, Func<ILogger> getLogger)
         {
-            var <#= commandFormalName #>Cmd = new Command("<#= commandName #>");
+            var <#= commandFormalNameVar #> = new Command(name: "<#= commandName #>", description: Strings.<#= commandFormalName #>_Description);
 
-            // Options directly under the verb
+            // Options directly under the verb '<#= commandName #>'
 <#
-    foreach (XElement option in verb.Descendants())
-    {
-        if (option.Name == XName.Get("Noun"))
-        {
-            break;
-        }
+    GenerateAddOptionOrArgument(verb, commandFormalNameVar, 12);
 
-        var data = new OptionData(option);
-        if (data.BaseClass == "Argument")
-        {
-#>
-            <#= commandFormalName #>Cmd.AddArgument(new Argument<<#= data.DataType #>>("<#= data.LongNameOrName #>"));
-<#
-        }
-        else if (data.BaseClass == "Option")
-        {
-#>
-            var <#= data.FormalName #>Option = new Option<<#= data.DataType #>>("<#= data.LongNameOrName #>", description: <#= data.Help #>)
-            {
-                Arity = <#= data.OptionType #>,
-            }
-            <#= commandFormalName #>Cmd.AddOption(<#= data.FormalName #>Option);
-<#
-        }
-    }
-#>
-
-            // nouns added as sub-commands, e.g. add "client-cert"
-<#
     foreach (XElement noun in verb.Descendants(XName.Get("Noun")))
     {
         string nounName = noun.Attribute(XName.Get("Name", ""))?.Value;
-        string nounFormalName = StringUtilities.InitCaps(nounName);
-        nounFormalName = nounFormalName.Replace("-", "");
-        if (nounFormalName != null)
+        string nounFormalName = InitCaps(nounName).Replace("-", "");
+        string nounFormalNameVar = nounFormalName + "Cmd";
+        if (nounFormalName == null)
         {
-#>
-            var <#= nounFormalName #>Cmd = new Command(name: "<#= nounName #>", description: Strings.<#= commandFormalName #><#= nounFormalName #>CommandDescription);
-<#
+            throw new ArgumentException("nounFormalName cannot be null");
         }
+#>
 
+            // noun sub-command: <#= commandName #> <#= nounName #>
+            var <#= nounFormalNameVar #> = new Command(name: "<#= nounName #>", description: Strings.<#= commandFormalName #><#= nounFormalName #>CommandDescription);
+
+            // Options under sub-command: <#= commandName #> <#= nounName #>
+<#
         // Look for options directly under each noun
-        foreach (XElement option in noun.Descendants())
-        {
-            var data = new OptionData(option);
-            if (data.BaseClass == "Argument")
-            {
-#>
-            var <#= data.FormalName #>Arg = new Argument<<#= data.DataType #>>(name: "<#= data.LongNameOrName #>", description: <#= data.Help #>);
-            <#= nounFormalName #>Cmd.AddArgument(<#= data.FormalName #>Arg);
-<#
-            }
-            else if (data.BaseClass == "Option")
-            {
-                if (data.HasShortcut)
-                {
-#>
-            var <#= data.FormalName #>Option = new Option<<#= data.DataType #>>(aliases: new[] { "<#= data.ShortcutName #>", "<#= data.FullName #>" }, description: <#= data.Help #>)
-<# 
-                }
-                else
-                {
-#>
-            var <#= data.FormalName #>Option = new Option<<#= data.DataType #>>(name: "<#= data.FullName #>", description: <#= data.Help #>);
-<#
-                }
-#>
-            {
-                Arity = <#= data.OptionType #>,
-            };
-            <#= nounFormalName #>Cmd.AddOption(<#= data.FormalName #>Option);
-<#
-            }
-        }
-#>
-            ///////////////////// HANDLER /////////////////////
+        GenerateAddOptionOrArgument(noun, nounFormalNameVar, 12);
 
+        // Generate handler for noun
+        GenerateCommandHandler(nounFormalNameVar, commandFormalName + nounFormalName, noun, false, 12);
 
-            <#= nounFormalName #>.AddHandler();
+#>
+            <#= commandFormalNameVar #>.AddCommand(<#= nounFormalNameVar #>);
+<#
 
-            ///////////////////// HANDLER /////////////////////
-                    <#= nounFormalName #>Cmd.OnExecute(() =>
-                    {
-                        var args = new <#= commandFormalName #><#= nounFormalName #>Args()
-                        {
-<#
-        foreach (XElement option in noun.Descendants())
-        {
-            var data = new OptionData(option);
-            if (data.BaseClass == "Argument")
-            {
-#>
-                            <#= data.InitCapsName #> = <#= data.FormalName #>.Value,
-<#
-            }
-            else if (data.BaseClass == "Option")
-            {
-                switch (data.OptionType)
-                {
-                    case "SingleValue":
-#>
-                            <#= data.InitCapsName #> = <#= data.FormalName #>.Value(),
-<#
-                        break;
-                    case "NoValue":
-#>
-                            <#= data.InitCapsName #> = <#= data.FormalName #>.HasValue(),
-<#
-                        break;
-                }
-            }
-        }
-#>
-                        };
+    } // end noun foreach
 
-<#  // ****** IMPLEMENT REQUIRED ARGUMENTS ********
+    // Generate handler for verb
+    //GenerateCommandHandler(commandFormalNameVar, commandFormalName, verb, true, 12);
+#>
 
-            foreach (XElement option2 in noun.Descendants())
-            {
-                var optionData = new OptionData(option2);
-                if (optionData.IsRequired)
-                {
-                    if (optionData.BaseClass == "Argument")
-                    {
-#>
-                    if (args.<#= optionData.InitCapsName #> == null)
-                    {
-                        throw new CommandException("'<#= optionData.FormalName #>' argument is missing but required.");
-                    }
-<#
-                    }
-                    else if (optionData.BaseClass == "Option")
-                    {
-                        switch (optionData.OptionType)
-                        {
-                        case "SingleValue":
-#>
-                        if (args.<#= optionData.InitCapsName #> == null)
-                        {
-                            throw new CommandException("'<#= optionData.FormalName #>' option is missing but required.");
-                        }
-<#
-                                break;
-                            case "NoValue":
-#>
-                        //TODO: implement required for bool
-<#
-                                break;
-                        }
-                    }
-                }
-            }
-#>
-                        <#= commandFormalName #><#= nounFormalName #>Runner.Run(args, getLogger);
-                        return 0;
-                    });
-                });
-<#
-        }
-#>
-                <#= commandFormalName #>Cmd.HelpOption("-h|--help");
-                <#= commandFormalName #>Cmd.Description = Strings.<#= commandFormalName #>_Description;
-                <#= commandFormalName #>Cmd.OnExecute(() =>
-                { // Begin Handler
-<#
-        bool verbHasOptions = false;
-        foreach (XElement option in verb.Descendants())
-        {
-            if (option.Name == XName.Get("Noun"))
-            {
-                break;
-            }
-
-            if (!verbHasOptions)
-            {
-#>
-                    var args = new <#= commandFormalName #>Args()
-                    {
-<#
-            }
-
-            verbHasOptions = true;
-            var optionData = new OptionData(option);
-            if (optionData.BaseClass == "Argument")
-            {
-#>
-                        <#= optionData.InitCapsName #> = <#= optionData.FormalName #>.Value,
-<#
-            }
-            else if (optionData.BaseClass == "Option")
-            {
-                switch (optionData.OptionType)
-                {
-                    case "SingleValue":
-#>
-                        <#= optionData.InitCapsName #> = <#= optionData.FormalName #>.Value(),
-<#
-                        break;
-                    case "NoValue":
-#>
-                        <#= optionData.InitCapsName #> = <#= optionData.FormalName #>.HasValue(),
-<#
-                        break;
-                }
-            }
-        }
-
-        if (verbHasOptions)
-        {
-#>
-                    };
-
-                    <#= commandFormalName #>Runner.Run(args, getLogger);
-                    return 0;
-<#
-        }
-        else
-        {
-#>
-                    app.ShowHelp("<#= commandName #>");
-                    return 0;
-<#
-        }
-#>
-                }); // End Handler
-        }
-    }
+            app.AddCommand(<#= commandFormalNameVar #>);
+        } // End noun method
+    } // end class
 
 <#
-}
-#>}
+} // end verb foreach
+#>
+} // end namespace

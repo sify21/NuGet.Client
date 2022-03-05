@@ -1,3 +1,4 @@
+
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
@@ -7,6 +8,7 @@
 
 using System;
 using System.CommandLine;
+using System.CommandLine.NamingConventionBinder;
 using NuGet.Commands;
 using NuGet.Common;
 
@@ -16,60 +18,487 @@ namespace NuGet.CommandLine.XPlat
     {
         internal static void Register(Command app, Func<ILogger> getLogger)
         {
-            var AddCmd = new Command("add");
+            var AddCmd = new Command(name: "add", description: Strings.Add_Description);
 
-            // Options directly under the verb
+            // Options directly under the verb 'add'
 
-            // nouns added as sub-commands, e.g. add "client-cert"
+            // noun sub-command: add source
             var SourceCmd = new Command(name: "source", description: Strings.AddSourceCommandDescription);
-            var SourceArg = new Argument<string>(name: "PackageSourcePath", description: Strings.SourcesCommandSourceDescription);
-            SourceCmd.AddArgument(SourceArg);
-            var nameOption = new Option<string>(aliases: new[] { "-n", "--name" }, description: Strings.SourcesCommandNameDescription)
+
+            // Options under sub-command: add source
+            SourceCmd.AddArgument(new Argument<string>(name: "PackageSourcePath", description: Strings.SourcesCommandSourceDescription));
+            SourceCmd.AddOption(new Option<string>(aliases: new[] { "-n", "--name" }, description: Strings.SourcesCommandNameDescription)
             {
                 Arity = ArgumentArity.ZeroOrOne,
-            };
-            SourceCmd.AddOption(nameOption);
-            var usernameOption = new Option<string>(aliases: new[] { "-u", "--username" }, description: Strings.SourcesCommandUsernameDescription)
+            });
+            SourceCmd.AddOption(new Option<string>(aliases: new[] { "-u", "--username" }, description: Strings.SourcesCommandUsernameDescription)
             {
                 Arity = ArgumentArity.ZeroOrOne,
-            };
-            SourceCmd.AddOption(usernameOption);
-            var passwordOption = new Option<string>(aliases: new[] { "-p", "--password" }, description: Strings.SourcesCommandPasswordDescription)
+            });
+            SourceCmd.AddOption(new Option<string>(aliases: new[] { "-p", "--password" }, description: Strings.SourcesCommandPasswordDescription)
             {
                 Arity = ArgumentArity.ZeroOrOne,
-            };
-            SourceCmd.AddOption(passwordOption);
-            var storePasswordInClearTextOption = new Option<bool>(name: "--store-password-in-clear-text", description: Strings.SourcesCommandStorePasswordInClearTextDescription);
+            });
+            SourceCmd.AddOption(new Option<bool>(name: "--store-password-in-clear-text", description: Strings.SourcesCommandStorePasswordInClearTextDescription)
             {
                 Arity = ArgumentArity.Zero,
-            };
-            SourceCmd.AddOption(storePasswordInClearTextOption);
-            var validAuthenticationTypesOption = new Option<string>(name: "--valid-authentication-types", description: Strings.SourcesCommandValidAuthenticationTypesDescription);
+            });
+            SourceCmd.AddOption(new Option<string>(name: "--valid-authentication-types", description: Strings.SourcesCommandValidAuthenticationTypesDescription)
             {
                 Arity = ArgumentArity.ZeroOrOne,
-            };
-            SourceCmd.AddOption(validAuthenticationTypesOption);
-            var configfileOption = new Option<FileInfo>(name: "--configfile", description: Strings.Option_ConfigFile);
+            });
+            SourceCmd.AddOption(new Option<string>(name: "--configfile", description: Strings.Option_ConfigFile)
             {
                 Arity = ArgumentArity.ZeroOrOne,
-            };
-            SourceCmd.AddOption(configfileOption);
-            ///////////////////// HANDLER /////////////////////
+            });
+            // Create handler delegate handler for SourceCmd
+            SourceCmd.Handler = CommandHandler.Create((
+                  string source
+                , string name
+                , string username
+                , string password
+                , bool storePasswordInClearText
+                , string validAuthenticationTypes
+                , string configfile
+            ) =>
+            {
+                var args = new AddSourceArgs()
+                {
+                    Source = source,
+                    Name = name,
+                    Username = username,
+                    Password = password,
+                    StorePasswordInClearText = storePasswordInClearText,
+                    ValidAuthenticationTypes = validAuthenticationTypes,
+                    Configfile = configfile,
+                }; // end of args assignment
 
+                AddSourceRunner.Run(args, getLogger);
+            }); // End handler of SourceCmd
+            AddCmd.AddCommand(SourceCmd);
 
-            Source.AddHandler();
-
-            ///////////////////// HANDLER /////////////////////
-                    SourceCmd.OnExecute(() =>
-                    {
-                        var args = new AddSourceArgs()
-                        {
-                            Source = Source.Value,
-                        };
-
-                        AddSourceRunner.Run(args, getLogger);
-                        return 0;
-                    });
-                });
+            // noun sub-command: add client-cert
             var ClientCertCmd = new Command(name: "client-cert", description: Strings.AddClientCertCommandDescription);
-            var packagesourceOption = new Option<
+
+            // Options under sub-command: add client-cert
+            ClientCertCmd.AddOption(new Option<string>(aliases: new[] { "-s", "--package-source" }, description: Strings.Option_PackageSource)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            ClientCertCmd.AddOption(new Option<string>(name: "--path", description: Strings.Option_Path)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            ClientCertCmd.AddOption(new Option<string>(name: "--password", description: Strings.Option_Password)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            ClientCertCmd.AddOption(new Option<bool>(name: "--store-password-in-clear-text", description: Strings.Option_StorePasswordInClearText)
+            {
+                Arity = ArgumentArity.Zero,
+            });
+            ClientCertCmd.AddOption(new Option<string>(name: "--store-location", description: Strings.Option_StoreLocation)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            ClientCertCmd.AddOption(new Option<string>(name: "--store-name", description: Strings.Option_StoreName)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            ClientCertCmd.AddOption(new Option<string>(name: "--find-by", description: Strings.Option_FindBy)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            ClientCertCmd.AddOption(new Option<string>(name: "--find-value", description: Strings.Option_FindValue)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            ClientCertCmd.AddOption(new Option<bool>(aliases: new[] { "-f", "--force" }, description: Strings.Option_Force)
+            {
+                Arity = ArgumentArity.Zero,
+            });
+            ClientCertCmd.AddOption(new Option<string>(name: "--configfile", description: Strings.Option_ConfigFile)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            // Create handler delegate handler for ClientCertCmd
+            ClientCertCmd.Handler = CommandHandler.Create((
+                  string packageSource
+                , string path
+                , string password
+                , bool storePasswordInClearText
+                , string storeLocation
+                , string storeName
+                , string findBy
+                , string findValue
+                , bool force
+                , string configfile
+            ) =>
+            {
+                var args = new AddClientCertArgs()
+                {
+                    PackageSource = packageSource,
+                    Path = path,
+                    Password = password,
+                    StorePasswordInClearText = storePasswordInClearText,
+                    StoreLocation = storeLocation,
+                    StoreName = storeName,
+                    FindBy = findBy,
+                    FindValue = findValue,
+                    Force = force,
+                    Configfile = configfile,
+                }; // end of args assignment
+
+                AddClientCertRunner.Run(args, getLogger);
+            }); // End handler of ClientCertCmd
+            AddCmd.AddCommand(ClientCertCmd);
+
+            app.AddCommand(AddCmd);
+        } // End noun method
+    } // end class
+
+    internal partial class DisableVerbParser
+    {
+        internal static void Register(Command app, Func<ILogger> getLogger)
+        {
+            var DisableCmd = new Command(name: "disable", description: Strings.Disable_Description);
+
+            // Options directly under the verb 'disable'
+
+            // noun sub-command: disable source
+            var SourceCmd = new Command(name: "source", description: Strings.DisableSourceCommandDescription);
+
+            // Options under sub-command: disable source
+            SourceCmd.AddArgument(new Argument<string>(name: "name", description: Strings.SourcesCommandNameDescription));
+            SourceCmd.AddOption(new Option<string>(name: "--configfile", description: Strings.Option_ConfigFile)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            // Create handler delegate handler for SourceCmd
+            SourceCmd.Handler = CommandHandler.Create((
+                  string name
+                , string configfile
+            ) =>
+            {
+                var args = new DisableSourceArgs()
+                {
+                    Name = name,
+                    Configfile = configfile,
+                }; // end of args assignment
+
+                DisableSourceRunner.Run(args, getLogger);
+            }); // End handler of SourceCmd
+            DisableCmd.AddCommand(SourceCmd);
+
+            app.AddCommand(DisableCmd);
+        } // End noun method
+    } // end class
+
+    internal partial class EnableVerbParser
+    {
+        internal static void Register(Command app, Func<ILogger> getLogger)
+        {
+            var EnableCmd = new Command(name: "enable", description: Strings.Enable_Description);
+
+            // Options directly under the verb 'enable'
+
+            // noun sub-command: enable source
+            var SourceCmd = new Command(name: "source", description: Strings.EnableSourceCommandDescription);
+
+            // Options under sub-command: enable source
+            SourceCmd.AddArgument(new Argument<string>(name: "name", description: Strings.SourcesCommandNameDescription));
+            SourceCmd.AddOption(new Option<string>(name: "--configfile", description: Strings.Option_ConfigFile)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            // Create handler delegate handler for SourceCmd
+            SourceCmd.Handler = CommandHandler.Create((
+                  string name
+                , string configfile
+            ) =>
+            {
+                var args = new EnableSourceArgs()
+                {
+                    Name = name,
+                    Configfile = configfile,
+                }; // end of args assignment
+
+                EnableSourceRunner.Run(args, getLogger);
+            }); // End handler of SourceCmd
+            EnableCmd.AddCommand(SourceCmd);
+
+            app.AddCommand(EnableCmd);
+        } // End noun method
+    } // end class
+
+    internal partial class ListVerbParser
+    {
+        internal static void Register(Command app, Func<ILogger> getLogger)
+        {
+            var ListCmd = new Command(name: "list", description: Strings.List_Description);
+
+            // Options directly under the verb 'list'
+
+            // noun sub-command: list source
+            var SourceCmd = new Command(name: "source", description: Strings.ListSourceCommandDescription);
+
+            // Options under sub-command: list source
+            SourceCmd.AddOption(new Option<string>(name: "--format", description: Strings.SourcesCommandFormatDescription)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            SourceCmd.AddOption(new Option<string>(name: "--configfile", description: Strings.Option_ConfigFile)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            // Create handler delegate handler for SourceCmd
+            SourceCmd.Handler = CommandHandler.Create((
+                  string format
+                , string configfile
+            ) =>
+            {
+                var args = new ListSourceArgs()
+                {
+                    Format = format,
+                    Configfile = configfile,
+                }; // end of args assignment
+
+                ListSourceRunner.Run(args, getLogger);
+            }); // End handler of SourceCmd
+            ListCmd.AddCommand(SourceCmd);
+
+            // noun sub-command: list client-cert
+            var ClientCertCmd = new Command(name: "client-cert", description: Strings.ListClientCertCommandDescription);
+
+            // Options under sub-command: list client-cert
+            ClientCertCmd.AddOption(new Option<string>(name: "--configfile", description: Strings.Option_ConfigFile)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            // Create handler delegate handler for ClientCertCmd
+            ClientCertCmd.Handler = CommandHandler.Create((
+                  string configfile
+            ) =>
+            {
+                var args = new ListClientCertArgs()
+                {
+                    Configfile = configfile,
+                }; // end of args assignment
+
+                ListClientCertRunner.Run(args, getLogger);
+            }); // End handler of ClientCertCmd
+            ListCmd.AddCommand(ClientCertCmd);
+
+            app.AddCommand(ListCmd);
+        } // End noun method
+    } // end class
+
+    internal partial class RemoveVerbParser
+    {
+        internal static void Register(Command app, Func<ILogger> getLogger)
+        {
+            var RemoveCmd = new Command(name: "remove", description: Strings.Remove_Description);
+
+            // Options directly under the verb 'remove'
+
+            // noun sub-command: remove source
+            var SourceCmd = new Command(name: "source", description: Strings.RemoveSourceCommandDescription);
+
+            // Options under sub-command: remove source
+            SourceCmd.AddArgument(new Argument<string>(name: "name", description: Strings.SourcesCommandNameDescription));
+            SourceCmd.AddOption(new Option<string>(name: "--configfile", description: Strings.Option_ConfigFile)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            // Create handler delegate handler for SourceCmd
+            SourceCmd.Handler = CommandHandler.Create((
+                  string name
+                , string configfile
+            ) =>
+            {
+                var args = new RemoveSourceArgs()
+                {
+                    Name = name,
+                    Configfile = configfile,
+                }; // end of args assignment
+
+                RemoveSourceRunner.Run(args, getLogger);
+            }); // End handler of SourceCmd
+            RemoveCmd.AddCommand(SourceCmd);
+
+            // noun sub-command: remove client-cert
+            var ClientCertCmd = new Command(name: "client-cert", description: Strings.RemoveClientCertCommandDescription);
+
+            // Options under sub-command: remove client-cert
+            ClientCertCmd.AddOption(new Option<string>(aliases: new[] { "-s", "--package-source" }, description: Strings.Option_PackageSource)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            ClientCertCmd.AddOption(new Option<string>(name: "--configfile", description: Strings.Option_ConfigFile)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            // Create handler delegate handler for ClientCertCmd
+            ClientCertCmd.Handler = CommandHandler.Create((
+                  string packageSource
+                , string configfile
+            ) =>
+            {
+                var args = new RemoveClientCertArgs()
+                {
+                    PackageSource = packageSource,
+                    Configfile = configfile,
+                }; // end of args assignment
+
+                RemoveClientCertRunner.Run(args, getLogger);
+            }); // End handler of ClientCertCmd
+            RemoveCmd.AddCommand(ClientCertCmd);
+
+            app.AddCommand(RemoveCmd);
+        } // End noun method
+    } // end class
+
+    internal partial class UpdateVerbParser
+    {
+        internal static void Register(Command app, Func<ILogger> getLogger)
+        {
+            var UpdateCmd = new Command(name: "update", description: Strings.Update_Description);
+
+            // Options directly under the verb 'update'
+
+            // noun sub-command: update source
+            var SourceCmd = new Command(name: "source", description: Strings.UpdateSourceCommandDescription);
+
+            // Options under sub-command: update source
+            SourceCmd.AddArgument(new Argument<string>(name: "name", description: Strings.SourcesCommandNameDescription));
+            SourceCmd.AddOption(new Option<string>(aliases: new[] { "-s", "--source" }, description: Strings.SourcesCommandSourceDescription)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            SourceCmd.AddOption(new Option<string>(aliases: new[] { "-u", "--username" }, description: Strings.SourcesCommandUsernameDescription)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            SourceCmd.AddOption(new Option<string>(aliases: new[] { "-p", "--password" }, description: Strings.SourcesCommandPasswordDescription)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            SourceCmd.AddOption(new Option<bool>(name: "--store-password-in-clear-text", description: Strings.SourcesCommandStorePasswordInClearTextDescription)
+            {
+                Arity = ArgumentArity.Zero,
+            });
+            SourceCmd.AddOption(new Option<string>(name: "--valid-authentication-types", description: Strings.SourcesCommandValidAuthenticationTypesDescription)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            SourceCmd.AddOption(new Option<string>(name: "--configfile", description: Strings.Option_ConfigFile)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            // Create handler delegate handler for SourceCmd
+            SourceCmd.Handler = CommandHandler.Create((
+                  string name
+                , string source
+                , string username
+                , string password
+                , bool storePasswordInClearText
+                , string validAuthenticationTypes
+                , string configfile
+            ) =>
+            {
+                var args = new UpdateSourceArgs()
+                {
+                    Name = name,
+                    Source = source,
+                    Username = username,
+                    Password = password,
+                    StorePasswordInClearText = storePasswordInClearText,
+                    ValidAuthenticationTypes = validAuthenticationTypes,
+                    Configfile = configfile,
+                }; // end of args assignment
+
+                UpdateSourceRunner.Run(args, getLogger);
+            }); // End handler of SourceCmd
+            UpdateCmd.AddCommand(SourceCmd);
+
+            // noun sub-command: update client-cert
+            var ClientCertCmd = new Command(name: "client-cert", description: Strings.UpdateClientCertCommandDescription);
+
+            // Options under sub-command: update client-cert
+            ClientCertCmd.AddOption(new Option<string>(aliases: new[] { "-s", "--package-source" }, description: Strings.Option_PackageSource)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            ClientCertCmd.AddOption(new Option<string>(name: "--path", description: Strings.Option_Path)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            ClientCertCmd.AddOption(new Option<string>(name: "--password", description: Strings.Option_Password)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            ClientCertCmd.AddOption(new Option<bool>(name: "--store-password-in-clear-text", description: Strings.Option_StorePasswordInClearText)
+            {
+                Arity = ArgumentArity.Zero,
+            });
+            ClientCertCmd.AddOption(new Option<string>(name: "--store-location", description: Strings.Option_StoreLocation)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            ClientCertCmd.AddOption(new Option<string>(name: "--store-name", description: Strings.Option_StoreName)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            ClientCertCmd.AddOption(new Option<string>(name: "--find-by", description: Strings.Option_FindBy)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            ClientCertCmd.AddOption(new Option<string>(name: "--find-value", description: Strings.Option_FindValue)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            ClientCertCmd.AddOption(new Option<bool>(aliases: new[] { "-f", "--force" }, description: Strings.Option_Force)
+            {
+                Arity = ArgumentArity.Zero,
+            });
+            ClientCertCmd.AddOption(new Option<string>(name: "--configfile", description: Strings.Option_ConfigFile)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            // Create handler delegate handler for ClientCertCmd
+            ClientCertCmd.Handler = CommandHandler.Create((
+                  string packageSource
+                , string path
+                , string password
+                , bool storePasswordInClearText
+                , string storeLocation
+                , string storeName
+                , string findBy
+                , string findValue
+                , bool force
+                , string configfile
+            ) =>
+            {
+                var args = new UpdateClientCertArgs()
+                {
+                    PackageSource = packageSource,
+                    Path = path,
+                    Password = password,
+                    StorePasswordInClearText = storePasswordInClearText,
+                    StoreLocation = storeLocation,
+                    StoreName = storeName,
+                    FindBy = findBy,
+                    FindValue = findValue,
+                    Force = force,
+                    Configfile = configfile,
+                }; // end of args assignment
+
+                UpdateClientCertRunner.Run(args, getLogger);
+            }); // End handler of ClientCertCmd
+            UpdateCmd.AddCommand(ClientCertCmd);
+
+            app.AddCommand(UpdateCmd);
+        } // End noun method
+    } // end class
+
+} // end namespace
