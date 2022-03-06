@@ -19,11 +19,6 @@
 // instead modify the neighboring .tt file (text template) and/or NuGet.CommandLine.Xplat\Commands\Commands.xml (data file),
 // then re-execute the text template via "run custom tool" on VS context menu for .tt file, or via dotnet-t4 global tool.
 
-using System;
-using System.IO;
-using System.Threading.Tasks;
-using NuGet.Common;
-
 namespace NuGet.Commands
 {
 <#
@@ -36,26 +31,15 @@ namespace NuGet.Commands
         {
             string nounName = noun.Attribute(XName.Get("Name", ""))?.Value;
             string nounFormalName = StringUtilities.GetFormalName(nounName);
-#>
-    public partial class <#= verbFormalName #><#= nounFormalName #>Args
-    {
-<#
-            foreach (XElement option in noun.Descendants())
-            {
-                if (IsArgumentOrOption(GetProperty(option)))
-                {
-                    string optionName = option.Attribute(XName.Get("Name", ""))?.Value;
-                    string optionFormalName = StringUtilities.GetFormalName(optionName);
-#>
-        public <#= GetClrType(option) #> <#= optionFormalName #> { get; set; }
-<#
-                }
-            }
-#>
-    }
 
-<#
+            GenerateArgsClass(verbFormalName + nounFormalName + "Args", noun, "public", 4);
         } // foreach noun
+        
+        var opts = verb.Elements().Where(n => isValidOption(n));
+        if (opts.Any())
+        {
+            GenerateArgsClass(verbFormalName + "Args", verb, "internal", 4);
+        }
     } // foreach verb
 #>
 }

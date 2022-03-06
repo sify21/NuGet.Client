@@ -1,0 +1,27 @@
+<Project>
+  <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), 'README.md'))\build\common.props" />
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+
+  <PropertyGroup>
+    <Description>NuGet source generation.</Description>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFramework />
+    <Shipping>true</Shipping>
+    <PackProject>true</PackProject>
+    <XPLATProject>true</XPLATProject>
+    <IncludeInVSIX>true</IncludeInVSIX>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="PublicAPI.Shipped.txt" />
+    <None Include="PublicAPI.Unshipped.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
+  </ItemGroup>
+
+  <Import Project="$(BuildCommonDirectory)common.targets" />
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+</Project>

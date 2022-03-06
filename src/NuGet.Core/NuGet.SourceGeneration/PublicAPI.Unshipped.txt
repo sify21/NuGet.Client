@@ -1,0 +1,2 @@
+NuGet.SourceGeneration.VerbArgsSourceGeneration
+NuGet.SourceGeneration.VerbArgsSourceGeneration.VerbArgsSourceGeneration() -> void

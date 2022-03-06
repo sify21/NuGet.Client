@@ -197,29 +197,27 @@ namespace NuGet.CommandLine.XPlat
                 SignCommand.Register(app, getHidePrefixLogger, SetLogLevel, () => new SignCommandRunner());
             }
 
-            app.FullName = Strings.App_FullName;
-            app.HelpOption(XPlatUtility.HelpOption);
-            app.VersionOption("--version", typeof(Program).GetTypeInfo().Assembly.GetName().Version.ToString());
-
-            var textInfo = CultureInfo.InvariantCulture.TextInfo;
-            var str = "xxx";
+            //app.FullName = Strings.App_FullName;
+            app.Description = Strings.App_FullName;
+            //app.HelpOption(XPlatUtility.HelpOption);
+            //app.VersionOption("--version", typeof(Program).GetTypeInfo().Assembly.GetName().Version.ToString());
 
             return app;
         }
 
-        private static void ShowBestHelp(CommandLineApplication app, string[] args)
+        private static void ShowBestHelp(Command app, string[] args)
         {
-            CommandLineApplication lastCommand = null;
-            List<CommandLineApplication> commands = app.Commands;
+            Command lastCommand = null;
+            IReadOnlyList<Command> commands = app.Subcommands;
             // tunnel down into the args, and show the best help possible.
             foreach (string arg in args)
             {
-                foreach (CommandLineApplication command in commands)
+                foreach (Command command in commands)
                 {
                     if (arg == command.Name)
                     {
                         lastCommand = command;
-                        commands = command.Commands;
+                        commands = command.Subcommands;
                         break;
                     }
                 }
@@ -227,11 +225,11 @@ namespace NuGet.CommandLine.XPlat
 
             if (lastCommand != null)
             {
-                lastCommand.ShowHelp();
+                lastCommand.Invoke("-h");
             }
             else
             {
-                app.ShowHelp();
+                app.Invoke("-h");
             }
         }
     }

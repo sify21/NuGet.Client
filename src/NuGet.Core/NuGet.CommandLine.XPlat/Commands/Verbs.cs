@@ -501,4 +501,41 @@ namespace NuGet.CommandLine.XPlat
         } // End noun method
     } // end class
 
+    internal partial class DeleteVerbParser
+    {
+        internal static void Register(Command app, Func<ILogger> getLogger)
+        {
+            var DeleteCmd = new Command(name: "delete", description: Strings.Delete_Description);
+
+            // Options directly under the verb 'delete'
+            DeleteCmd.AddOption(new Option<bool>(name: "--force-english-output", description: Strings.ForceEnglishOutput_Description)
+            {
+                Arity = ArgumentArity.Zero,
+            });
+            DeleteCmd.AddOption(new Option<string>(aliases: new[] { "-s", "--source" }, description: Strings.Source_Description)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            DeleteCmd.AddOption(new Option<bool>(name: "--non-interactive", description: Strings.NonInteractive_Description)
+            {
+                Arity = ArgumentArity.Zero,
+            });
+            DeleteCmd.AddOption(new Option<string>(aliases: new[] { "-k", "--api-key" }, description: Strings.ApiKey_Description)
+            {
+                Arity = ArgumentArity.ZeroOrOne,
+            });
+            DeleteCmd.AddArgument(new Argument<string>(name: "root", description: Strings.Delete_PackageIdAndVersion_Description));
+            DeleteCmd.AddOption(new Option<bool>(name: "--no-service-endpoint", description: Strings.NoServiceEndpoint_Description)
+            {
+                Arity = ArgumentArity.Zero,
+            });
+            DeleteCmd.AddOption(new Option<bool>(name: "--interactive", description: Strings.NuGetXplatCommand_Interactive)
+            {
+                Arity = ArgumentArity.Zero,
+            });
+
+            app.AddCommand(DeleteCmd);
+        } // End noun method
+    } // end class
+
 } // end namespace

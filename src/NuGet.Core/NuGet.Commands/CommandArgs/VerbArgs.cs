@@ -5,11 +5,6 @@
 // instead modify the neighboring .tt file (text template) and/or NuGet.CommandLine.Xplat\Commands\Commands.xml (data file),
 // then re-execute the text template via "run custom tool" on VS context menu for .tt file, or via dotnet-t4 global tool.
 
-using System;
-using System.IO;
-using System.Threading.Tasks;
-using NuGet.Common;
-
 namespace NuGet.Commands
 {
     public partial class AddSourceArgs
@@ -95,6 +90,17 @@ namespace NuGet.Commands
         public string FindValue { get; set; }
         public bool Force { get; set; }
         public string Configfile { get; set; }
+    }
+
+    internal partial class DeleteArgs
+    {
+        public bool ForceEnglishOutput { get; set; }
+        public string Source { get; set; }
+        public bool NonInteractive { get; set; }
+        public string ApiKey { get; set; }
+        public string Root { get; set; }
+        public bool NoServiceEndpoint { get; set; }
+        public bool Interactive { get; set; }
     }
 
 }

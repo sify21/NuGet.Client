@@ -41,13 +41,18 @@
             case "SeeAlso":
                 return "SeeAlso";
             default:
-                throw new ArgumentException("Unknown Element Type " + element.Name.LocalName);
+                throw new ArgumentException("Unknown Property Type " + element.Name.LocalName);
         }
     }
 
     string GetOptionType(XElement element)
     {
         return StringUtilities.GetOptionType(element);
+    }
+
+    bool isValidOption(XElement n)
+    {
+        return n.Name != XName.Get("Noun") && n.Name != XName.Get("Example") && n.Name != XName.Get("SeeAlso");
     }
 
 public static class StringUtilities
@@ -103,7 +108,7 @@ public static class StringUtilities
             case "Argument":
                 return "Value";
             default:
-                throw new ArgumentException("Unknown Element Type " + element.Name.LocalName);
+                throw new ArgumentException("Unknown Option Type " + element.Name.LocalName);
         }
     }
 
@@ -212,7 +217,7 @@ public class OptionData
         foreach (XElement option in parentNode.Elements())
         {
             var optionXName = option.Name;
-            if (optionXName == XName.Get("Noun") || optionXName == XName.Get("Example") || optionXName == XName.Get("SeeAlso"))
+            if (!isValidOption(option))
             {
                 continue;
             }
@@ -259,7 +264,7 @@ public class OptionData
         while (paramEnumerator.MoveNext())
         {
             XElement option = paramEnumerator.Current;
-            if (option.Name == XName.Get("Noun") || option.Name == XName.Get("Example") || option.Name == XName.Get("SeeAlso"))
+            if (!isValidOption(option))
             {
                 continue;
             }
@@ -271,7 +276,7 @@ public class OptionData
         }
     }
 
-    void GenerateCommandHandler(string commandNameVar, string verbNounPrefix, XElement noun, bool onlyPrintHelp = false, int indent = 4)
+    void GenerateCommandHandler(string commandNameVar, string verbNounPrefix, XElement noun, int indent = 4)
     {
 #>
 <#= Indent(indent) #>// Create handler delegate handler for <#= commandNameVar #>
@@ -281,23 +286,13 @@ public class OptionData
 #>
 <#= Indent(indent) #>) =>
 <#= Indent(indent) #>{
-<#+
-        if (onlyPrintHelp)
-        {
-#>
-<#= Indent(indent) #>    <#= commandNameVar #>.Invoke("-h");
-<#= Indent(indent) #>}); // End of only-help handler
-<#+
-            return;
-        }
-#>
 <#= Indent(indent) #>    var args = new <#= verbNounPrefix #>Args()
 <#= Indent(indent) #>    {
 <#+
         // Generate option arg assignment
         foreach (XElement option in noun.Elements())
         {
-            if (option.Name == XName.Get("Noun") || option.Name == XName.Get("Example") || option.Name == XName.Get("SeeAlso"))
+            if (!isValidOption(option))
             {
                 continue;
             }
@@ -314,7 +309,7 @@ public class OptionData
         // Generate Required Argument/Options validation code
         foreach (XElement requiredArg in noun.Elements())
         {
-            if (requiredArg.Name == XName.Get("Noun") || requiredArg.Name == XName.Get("Example") || requiredArg.Name == XName.Get("SeeAlso"))
+            if (!isValidOption(requiredArg))
             {
                 continue;
             }
@@ -334,4 +329,26 @@ public class OptionData
 <#= Indent(indent) #>}); // End handler of <#= commandNameVar #>
 <#+
     } // end method GenerateCommandHandler
+
+
+    void GenerateArgsClass(string className, XElement nodeMembers, string classVisibility = "public", int indent = 4)
+    {
+        PushIndent(Indent(indent));
+        WriteLine($"{classVisibility} partial class {className}");
+        WriteLine("{");
+        PushIndent("    ");
+        foreach (XElement option in nodeMembers.Elements())
+        {
+            if (IsArgumentOrOption(GetProperty(option)))
+            {
+                string optionName = option.Attribute(XName.Get("Name", ""))?.Value;
+                string optionFormalName = StringUtilities.GetFormalName(optionName);
+                WriteLine($"public {GetClrType(option)} {optionFormalName} {{ get; set; }}");
+            }
+        }
+        PopIndent();
+        WriteLine("}");
+        PopIndent();
+        WriteLine("");
+    } // end method GenerateArgsClass
 #>

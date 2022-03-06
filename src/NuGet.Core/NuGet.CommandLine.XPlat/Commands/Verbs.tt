@@ -66,7 +66,7 @@ foreach (XElement verb in commands.Descendants(XName.Get("Verb","")))
         GenerateAddOptionOrArgument(noun, nounFormalNameVar, 12);
 
         // Generate handler for noun
-        GenerateCommandHandler(nounFormalNameVar, commandFormalName + nounFormalName, noun, false, 12);
+        GenerateCommandHandler(nounFormalNameVar, commandFormalName + nounFormalName, noun, 12);
 
 #>
             <#= commandFormalNameVar #>.AddCommand(<#= nounFormalNameVar #>);
@@ -74,8 +74,13 @@ foreach (XElement verb in commands.Descendants(XName.Get("Verb","")))
 
     } // end noun foreach
 
+    var opts = verb.Elements().Where(n => isValidOption(n));
+
     // Generate handler for verb
-    //GenerateCommandHandler(commandFormalNameVar, commandFormalName, verb, true, 12);
+    if (opts.Any())
+    {
+        //GenerateCommandHandler(commandFormalNameVar, commandFormalName, verb, 12);
+    }
 #>
 
             app.AddCommand(<#= commandFormalNameVar #>);

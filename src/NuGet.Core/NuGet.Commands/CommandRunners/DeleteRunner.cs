@@ -14,6 +14,11 @@ namespace NuGet.Commands
     /// </summary>
     public static class DeleteRunner
     {
+        internal static void Run(DeleteArgs args, ILogger logger)
+        {
+            
+        }
+
         public static async Task Run(
             ISettings settings,
             IPackageSourceProvider sourceProvider,
