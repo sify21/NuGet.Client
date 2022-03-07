@@ -128,7 +128,7 @@ error: Unrecognized option '{unrecognizedOption}'"));
             var testApp = new CommandLineApplication();
 
             testApp.Name = "dotnet nuget_test";
-            TrustedSignersCommand.Register(testApp,
+            TrustCommandParser.Register(testApp,
                 () => logger,
                 ll => logLevel = ll);
 

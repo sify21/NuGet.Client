@@ -93,7 +93,7 @@ namespace NuGet.XPlat.FuncTest
                 .Returns(Task.FromResult(0));
 
             testApp.Name = "dotnet nuget_test";
-            VerifyCommand.Register(testApp,
+            VerifyCommandParser.Register(testApp,
                 () => logger,
                 ll => logLevel = ll,
                 () => mockCommandRunner.Object);
