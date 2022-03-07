@@ -110,14 +110,95 @@
       <SingleValueOption Name="configfile" Help="Option_ConfigFile" />
     </Noun>
   </Verb>
-  <Verb Name="delete" 
-     Help="Delete_Description">
+  <Command Name="delete"
+     Help="Delete_Description" Handler="DeleteHandlerAsync">
     <SwitchOption Name="force-english-output" Help="ForceEnglishOutput_Description" />
     <SingleValueOption Name="source" Shortcut="s" Help="Source_Description" />
     <SwitchOption Name="non-interactive" Help="NonInteractive_Description" />
     <SingleValueOption Name="api-key" Shortcut="k" Help="ApiKey_Description" />
-    <Argument Name="root" Help="Delete_PackageIdAndVersion_Description" Type="string" />
+    <Argument Name="package-id" Help="Delete_PackageIdAndVersion_Description" Type="string" />
+    <Argument Name="package-version" Help="Delete_PackageIdAndVersion_Description" Type="string" />
     <SwitchOption Name="no-service-endpoint" Help="NoServiceEndpoint_Description" />
     <SwitchOption Name="interactive" Help="NuGetXplatCommand_Interactive" />
+  </Command>
+  <Command Name="push"
+    Help="Push_Description" Handler="PushHandlerAsync">
+    <SwitchOption Name="force-english-output" Help="ForceEnglishOutput_Description" />
+    <SingleValueOption Name="source" Shortcut="s" Help="Source_Description" />
+    <SingleValueOption Name="symbol-source" Shortcut="ss" Help="SymbolSource_Description" />
+    <SingleValueOption Name="timeout" Shortcut="t" Help="Push_Timeout_Description" Type="int" />
+    <SingleValueOption Name="api-key" Shortcut="k" Help="ApiKey_Description" />
+    <SingleValueOption Name="symbol-api-key" Shortcut="sk" Help="SymbolApiKey_Description" />
+    <SwitchOption Name="disable-buffering" Shortcut="d" Help="DisableBuffering_Description" />
+    <SwitchOption Name="no-symbols" Shortcut="n" Help="NoSymbols_Description" />
+    <Argument Name="package-paths" Help="Push_Package_ApiKey_Description" Arity="ArgumentArity.OneOrMore" Type="string" />
+    <SwitchOption Name="no-service-endpoint" Help="NoServiceEndpoint_Description" />
+    <SwitchOption Name="interactive" Help="NuGetXplatCommand_Interactive" />
+    <SwitchOption Name="skip-duplicate" Help="PushCommandSkipDuplicateDescription" />
+  </Command> 
+  <Command Name="locals"
+    Help="LocalsCommand_Description" Handler="LocalsHandler">
+    <SwitchOption Name="force-english-output" Help="ForceEnglishOutput_Description" />
+    <SwitchOption Name="clear" Shortcut="c" Help="LocalsCommand_ClearDescription" />
+    <SwitchOption Name="list" Shortcut="l" Help="LocalsCommand_ListDescription" />
+    <Argument Name="cache-locations" Help="LocalsCommand_ArgumentDescription" Type="string" /> <!-- Original Name: Cache Location(s) -->
+  </Command>
+  <Command Name="verify"
+    Help="VerifyCommandDescription" Handler="VerifyHandlerAsync">
+    <Argument Name="package-paths" Help="VerifyCommandPackagePathDescription" Type="string" Arity="ArgumentArity.OneOrMore" />
+    <SwitchOption Name="all" Help="VerifyCommandAllDescription" />
+    <MultipleValueOption Name="certificate-fingerprint" Help="VerifyCommandCertificateFingerprintDescription" />
+    <SingleValueOption Name="configfile" Help="Option_ConfigFile" />
+    <SingleValueOption Name="verbosity" Help="Verbosity_Description" />
+  </Command>
+  <Verb Name="trust" Help="TrustCommandDescription" Handler="TrustHandlerAsync">
+    <!-- direct verb options -->
+    <SingleValueOption Name="configfile" Help="Option_ConfigFile" />
+    <SingleValueOption Name="verbosity" Help="Verbosity_Description" />
+    <!-- noun sub-commands -->
+    <Noun Name="list" Help="TrustListCommandDescription" Handler="TrustListHandlerAsync">
+      <SingleValueOption Name="configfile" Help="Option_ConfigFile" />
+      <SingleValueOption Name="verbosity" Help="Verbosity_Description" />
+    </Noun>
+    <Noun Name="sync" Help="TrustSyncCommandDescription" Handler="TrustSyncHandlerAsync">
+      <SingleValueOption Name="configfile" Help="Option_ConfigFile" />
+      <SingleValueOption Name="verbosity" Help="Verbosity_Description" />
+      <Argument Name="name" Help="TrustedSignerNameExists" Type="string" />
+    </Noun>
+    <Noun Name="remove" Help="TrustRemoveCommandDescription" Handler="TrustRemoveHandlerAsync">
+      <SingleValueOption Name="configfile" Help="Option_ConfigFile" />
+      <SingleValueOption Name="verbosity" Help="Verbosity_Description" />
+      <Argument Name="name" Help="TrustedSignerNameToRemove" Type="string" />
+    </Noun>
+    <Noun Name="author" Help="TrustAuthorCommandDescription" Handler="TrustAuthorHandlerAsync">
+      <SwitchOption Name="allow-untrusted-root" Help="TrustCommandAllowUntrustedRoot" />
+      <SingleValueOption Name="configfile" Help="Option_ConfigFile" />
+      <SingleValueOption Name="verbosity" Help="Verbosity_Description" />
+      <Argument Name="name" Help="TrustedSignerNameToAdd" Type="string" />
+      <Argument Name="package" Help="TrustLocalSignedNupkgPath" Type="string" />
+    </Noun>
+    <Noun Name="repository" Help="TrustRepositoryCommandDescription" Handler="TrustRepositoryHandlerAsync">
+      <SwitchOption Name="allow-untrusted-root" Help="TrustCommandAllowUntrustedRoot" />
+      <SingleValueOption Name="configfile" Help="Option_ConfigFile" />
+      <SingleValueOption Name="owners" Help="TrustCommandOwners" />
+      <SingleValueOption Name="verbosity" Help="Verbosity_Description" />
+      <Argument Name="name" Help="TrustedSignerNameToAdd" Type="string" />
+      <Argument Name="package" Help="TrustLocalSignedNupkgPath" Type="string" />
+    </Noun>
+    <Noun Name="certificate" Help="TrustRepositoryCommandDescription" Handler="TrustCertificateHandlerAsync">
+      <SingleValueOption Name="algorithm" Help="TrustCommandAlgorithm" />
+      <SwitchOption Name="allow-untrusted-root" Help="TrustCommandAllowUntrustedRoot" />
+      <SingleValueOption Name="configfile" Help="Option_ConfigFile" />
+      <SingleValueOption Name="verbosity" Help="Verbosity_Description" />
+      <Argument Name="NAME" Help="TrustedCertificateSignerNameToAdd" Type="string" />
+      <Argument Name="FINGERPRINT" Help="TrustCertificateFingerprint" Type="string" />
+    </Noun>
+    <Noun Name="source" Help="TrustSourceCommandDescription" Handler="TrustSourceHandlerAsync">
+      <SingleValueOption Name="configfile" Help="Option_ConfigFile" />
+      <SingleValueOption Name="owners" Help="TrustCommandOwners" />
+      <SingleValueOption Name="source-url" Help="TrustSourceUrl" />
+      <SingleValueOption Name="verbosity" Help="Verbosity_Description" />
+      <Argument Name="NAME" Help="TrustSourceSignerName" Type="string" />
+    </Noun>
   </Verb>
 </Commands>

@@ -92,15 +92,4 @@ namespace NuGet.Commands
         public string Configfile { get; set; }
     }
 
-    internal partial class DeleteArgs
-    {
-        public bool ForceEnglishOutput { get; set; }
-        public string Source { get; set; }
-        public bool NonInteractive { get; set; }
-        public string ApiKey { get; set; }
-        public string Root { get; set; }
-        public bool NoServiceEndpoint { get; set; }
-        public bool Interactive { get; set; }
-    }
-
 }

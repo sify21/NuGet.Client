@@ -1,3 +1,4 @@
+<#@ import namespace="System.Text" #>
 <#+
     string InitCaps(string input)
     {
@@ -82,6 +83,8 @@ public static class StringUtilities
 
         switch (GetOptionType(option))
         {
+            case "MultipleValue":
+                return "string";
             case "SingleValue":
                 return "string";
             case "NoValue":
@@ -97,8 +100,16 @@ public static class StringUtilities
 
     public static string GetOptionType(XElement element)
     {
+        string arity = element.Attribute(XName.Get("Arity", ""))?.Value;
+        if (arity != null)
+        {
+            return arity;
+        }
+
         switch (element.Name.LocalName)
         {
+            case "MultipleValueOption":
+                return "MultipleValue";
             case "SingleValueOption":
                 return "SingleValue";
             case "SwitchOption":
@@ -153,8 +164,14 @@ public class OptionData
         IsRequired = element.Attribute(XName.Get("Required", ""))?.Value == "true";
         DataType = StringUtilities.GetClrType(element);
 
+        string optionType = StringUtilities.GetOptionType(element);
+
         switch (elementName)
         {
+            case "MultipleValueOption":
+                BaseClass = "Option";
+                OptionType = "ArgumentArity.OneOrMore";
+                break;
             case "SingleValueOption":
                 BaseClass = "Option";
                 OptionType = "ArgumentArity.ZeroOrOne";
@@ -169,6 +186,7 @@ public class OptionData
                 break;
             case "Argument":
                 BaseClass = "Argument";
+                OptionType =  optionType != "Value" ? optionType : "ArgumentArity.ExactlyOne";
                 break;
             case "Example":
                 BaseClass = "Example";
@@ -202,7 +220,7 @@ public class OptionData
     {
         if (isFirst)
         {
-            return "  ";
+            return "";
         }
         return ", ";
     }
@@ -227,7 +245,10 @@ public class OptionData
             {
                 // Generate Argument
 #>
-<#= Indent(indent) #><#= commandVarName #>.AddArgument(new Argument<<#= data.DataType #>>(name: "<#= data.LongNameOrName #>", description: <#= data.Help #>));
+<#= Indent(indent) #><#= commandVarName #>.AddArgument(new Argument<<#= data.DataType #>>(name: "<#= data.LongNameOrName #>", description: <#= data.Help #>)
+<#= Indent(indent) #>{
+<#= Indent(indent) #>    Arity = <#= data.OptionType #>,
+<#= Indent(indent) #>});
 <#+
                 // End Generate argument
             }
@@ -351,4 +372,41 @@ public class OptionData
         PopIndent();
         WriteLine("");
     } // end method GenerateArgsClass
+
+
+    string GenerateTypeParams(XElement optionsNode, int indent = 4)
+    {
+        bool isFirst = true;
+        var paramEnumerator = optionsNode.Elements().GetEnumerator();
+        string arrayDelim;
+        var sb = new StringBuilder();
+        while (paramEnumerator.MoveNext())
+        {
+            XElement option = paramEnumerator.Current;
+            if (!isValidOption(option))
+            {
+                continue;
+            }
+            var data = new OptionData(option);
+            arrayDelim = data.OptionType == "ArgumentArity.OneOrMore" || data.OptionType == "ArgumentArity.ZeroOrMore" ? "[]" : "";
+            sb.Append($"{getSeparator(isFirst)}{data.DataType}{arrayDelim}");
+            isFirst = false;
+        }
+
+        return sb.ToString();
+    }
+
+    bool GenerateSetCustomHandler(string commandVarName, XElement node, int indent = 4)
+    {
+        PushIndent(Indent(indent));
+        string customHandler = node.Attribute(XName.Get("Handler", ""))?.Value;
+        bool hasCustomHandler = !string.IsNullOrEmpty(customHandler);
+        if (hasCustomHandler)
+        {
+            WriteLine($"{commandVarName}.Handler = CommandHandler.Create<{GenerateTypeParams(node)}>({customHandler});");
+        }
+        PopIndent();
+
+        return hasCustomHandler;
+    } // GenerateSetCustomHandler
 #>

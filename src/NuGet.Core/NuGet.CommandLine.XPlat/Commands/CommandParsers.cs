@@ -1,3 +1,4 @@
+
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
@@ -21,6 +22,11 @@ namespace NuGet.CommandLine.XPlat
             ListVerbParser.Register(app, getLogger);
             RemoveVerbParser.Register(app, getLogger);
             UpdateVerbParser.Register(app, getLogger);
+            TrustCommandParser.Register(app, getLogger);
+            DeleteCommandParser.Register(app, getLogger);
+            PushCommandParser.Register(app, getLogger);
+            LocalsCommandParser.Register(app, getLogger);
+            VerifyCommandParser.Register(app, getLogger);
         }
     }
 }

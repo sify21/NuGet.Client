@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using NuGet.Common;
 using NuGet.Commands;
+using System.CommandLine.NamingConventionBinder;
 
 #if DEBUG
 using Microsoft.Build.Locator;
@@ -188,12 +189,10 @@ namespace NuGet.CommandLine.XPlat
             {
                 // "dotnet nuget *" commands
                 app.Name = DotnetNuGetAppName;
+                VerifyCommandParser.SetLogLevelAction = SetLogLevel;
+                VerifyCommandParser.GetCommandRunnerFunc = () => new VerifyCommandRunner();
+                TrustCommandParser.SetLogLevelAction = SetLogLevel;
                 CommandParsers.Register(app, getHidePrefixLogger);
-                DeleteCommand.Register(app, getHidePrefixLogger);
-                PushCommand.Register(app, getHidePrefixLogger);
-                LocalsCommand.Register(app, getHidePrefixLogger);
-                VerifyCommand.Register(app, getHidePrefixLogger, SetLogLevel, () => new VerifyCommandRunner());
-                TrustedSignersCommand.Register(app, getHidePrefixLogger, SetLogLevel);
                 SignCommand.Register(app, getHidePrefixLogger, SetLogLevel, () => new SignCommandRunner());
             }
 
