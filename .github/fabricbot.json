@@ -593,7 +593,7 @@
           {
             "name": "noActivitySince",
             "parameters": {
-              "days": 1
+              "days": 30
             }
           },
           {
@@ -615,9 +615,15 @@
             "parameters": {
               "label": "Status:No recent activity"
             }
+          },
+          {
+            "name": "hasLabel",
+            "parameters": {
+              "label": "internal-debugging"
+            }
           }
         ],
-        "taskName": "[Test: Fernando] [stale community NuGet/NuGet.Client PR] [5-1] Search for community PRs with no activity over 7 days and warn. (except draft PRs)",
+        "taskName": "[Fernando] [stale community NuGet/NuGet.Client PR] [5-1] Search for community PRs with no activity over 7 days and warn (except draft PRs) (internal-debugging)",
         "actions": [
           {
             "name": "addLabel",
@@ -665,6 +671,12 @@
               "parameters": {
                 "label": "Community"
               }
+            },
+            {
+              "name": "hasLabel",
+              "parameters": {
+                "label": "internal-debugging"
+              }
             }
           ]
         },
@@ -674,7 +686,7 @@
           "issues",
           "project_card"
         ],
-        "taskName": "[Test: Fernando] [stale community NuGet/NuGet.Client PR] [5-2] Remove \"Status:No recent activity\" if there is any activity.",
+        "taskName": "[Fernando] [stale community NuGet/NuGet.Client PR] [5-2] Remove \"Status:No recent activity\" if there is any activity (internal-debugging)",
         "actions": [
           {
             "name": "removeLabel",
@@ -705,6 +717,12 @@
               "parameters": {
                 "label": "Community"
               }
+            },
+            {
+              "name": "hasLabel",
+              "parameters": {
+                "label": "internal-debugging"
+              }
             }
           ]
         },
@@ -712,7 +730,7 @@
         "eventNames": [
           "issue_comment"
         ],
-        "taskName": "[Test: Fernando] [stale community NuGet/NuGet.Client PR] [5-3] Remove \"Status:No recent activity\" if there is any comment.",
+        "taskName": "[Fernando] [stale community NuGet/NuGet.Client PR] [5-3] Remove \"Status:No recent activity\" if there is any comment (internal-debugging)",
         "actions": [
           {
             "name": "removeLabel",
@@ -743,6 +761,12 @@
               "parameters": {
                 "label": "Community"
               }
+            },
+            {
+              "name": "hasLabel",
+              "parameters": {
+                "label": "internal-debugging"
+              }
             }
           ]
         },
@@ -750,7 +774,7 @@
         "eventNames": [
           "pull_request_review"
         ],
-        "taskName": "[Test: Fernando] [stale community NuGet/NuGet.Client PR] [5-4] Remove \"Status:No recent activity\" if there are any reviews.",
+        "taskName": "[Fernando] [stale community NuGet/NuGet.Client PR] [5-4] Remove \"Status:No recent activity\" if there are any reviews (internal-debugging)",
         "actions": [
           {
             "name": "removeLabel",
@@ -891,11 +915,17 @@
           {
             "name": "noActivitySince",
             "parameters": {
-              "days": 2
+              "days": 7
+            }
+          },
+          {
+            "name": "hasLabel",
+            "parameters": {
+              "label": "internal-debugging"
             }
           }
         ],
-        "taskName": "[Test: Fernando] [stale community NuGet/NuGet.Client PR] [5-5] Close PRs with no activity over 7 days after warn.",
+        "taskName": "[Fernando] [stale community NuGet/NuGet.Client PR] [5-5] Close PRs with no activity over 7 days after warn (internal-debugging)",
         "actions": [
           {
             "name": "closeIssue",
