@@ -25,13 +25,19 @@ namespace NuGet.DependencyResolver
             _context = context;
         }
 
-        public async Task<GraphNode<RemoteResolveResult>> WalkAsync(LibraryRange library, NuGetFramework framework, string runtimeIdentifier, RuntimeGraph runtimeGraph, bool recursive)
+        public Task<GraphNode<RemoteResolveResult>> WalkAsync(LibraryRange library, NuGetFramework framework, string runtimeIdentifier, RuntimeGraph runtimeGraph, bool recursive)
+        {
+            return WalkAsync(library, framework, runtimeIdentifier, useLegacyAssetTargetFallbackBehavior: false, runtimeGraph, recursive);
+        }
+
+        public async Task<GraphNode<RemoteResolveResult>> WalkAsync(LibraryRange library, NuGetFramework framework, string runtimeIdentifier, bool useLegacyAssetTargetFallbackBehavior, RuntimeGraph runtimeGraph, bool recursive)
         {
             var transitiveCentralPackageVersions = new TransitiveCentralPackageVersions();
             var rootNode = await CreateGraphNode(
                 libraryRange: library,
                 framework: framework,
                 runtimeName: runtimeIdentifier,
+                useLegacyAssetTargetFallbackBehavior: useLegacyAssetTargetFallbackBehavior,
                 runtimeGraph: runtimeGraph,
                 predicate: _ => (recursive ? DependencyResult.Acceptable : DependencyResult.Eclipsed, null),
                 outerEdge: null,
@@ -55,7 +61,7 @@ namespace NuGet.DependencyResolver
                     // as the nodes are created more parents can be added for a single central transitive node
                     // keep the list of the nodes created and add the parents's references at the end
                     // the parent references are needed to keep track of possible rejected parents
-                    transitiveCentralPackageVersionNodes.Add(await AddTransitiveCentralPackageVersionNodesAsync(rootNode, centralPackageVersionDependency, framework, runtimeIdentifier, runtimeGraph, transitiveCentralPackageVersions));
+                    transitiveCentralPackageVersionNodes.Add(await AddTransitiveCentralPackageVersionNodesAsync(rootNode, centralPackageVersionDependency, framework, runtimeIdentifier, useLegacyAssetTargetFallbackBehavior, runtimeGraph, transitiveCentralPackageVersions));
                 }
             }
             transitiveCentralPackageVersionNodes.ForEach(node => transitiveCentralPackageVersions.AddParentsToNode(node));
@@ -67,6 +73,7 @@ namespace NuGet.DependencyResolver
             LibraryRange libraryRange,
             NuGetFramework framework,
             string runtimeName,
+            bool useLegacyAssetTargetFallbackBehavior,
             RuntimeGraph runtimeGraph,
             Func<LibraryRange, (DependencyResult dependencyResult, LibraryDependency conflictingDependency)> predicate,
             GraphEdge<RemoteResolveResult> outerEdge,
@@ -126,6 +133,7 @@ namespace NuGet.DependencyResolver
                     libraryRange,
                     framework,
                     runtimeName,
+                    useLegacyAssetTargetFallbackBehavior,
                     _context,
                     CancellationToken.None)
             };
@@ -193,6 +201,7 @@ namespace NuGet.DependencyResolver
                             dependency.LibraryRange,
                             framework,
                             runtimeName,
+                            useLegacyAssetTargetFallbackBehavior,
                             runtimeGraph,
                             predicate,
                             innerEdge,
@@ -464,6 +473,7 @@ namespace NuGet.DependencyResolver
             LibraryDependency centralPackageVersionDependency,
             NuGetFramework framework,
             string runtimeIdentifier,
+            bool useLegacyAssetTargetFallbackBehavior,
             RuntimeGraph runtimeGraph,
             TransitiveCentralPackageVersions transitiveCentralPackageVersions)
         {
@@ -471,6 +481,7 @@ namespace NuGet.DependencyResolver
                     libraryRange: centralPackageVersionDependency.LibraryRange,
                     framework: framework,
                     runtimeName: runtimeIdentifier,
+                    useLegacyAssetTargetFallbackBehavior: useLegacyAssetTargetFallbackBehavior,
                     runtimeGraph: runtimeGraph,
                     predicate: ChainPredicate(_ => (DependencyResult.Acceptable, null), rootNode, centralPackageVersionDependency),
                     outerEdge: null,

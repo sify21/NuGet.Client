@@ -1019,8 +1019,9 @@ namespace NuGet.Commands
 
             // Load repositories
             // the external project provider is specific to the current restore project
+            var disableAssetTargetFallbackDependencyResolution = _request.Project.TargetFrameworks.Any(e => e.DisableAssetTargetFallbackDependenciesResolution);
             context.ProjectLibraryProviders.Add(
-                    new PackageSpecReferenceDependencyProvider(updatedExternalProjects, _logger, useLegacyAssetTargetFallbackBehavior: true));
+                    new PackageSpecReferenceDependencyProvider(updatedExternalProjects, _logger, useLegacyAssetTargetFallbackBehavior: disableAssetTargetFallbackDependencyResolution));
 
             var remoteWalker = new RemoteDependencyWalker(context);
 

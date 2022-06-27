@@ -88,6 +88,14 @@ namespace NuGet.DependencyResolver
             ILogger logger,
             CancellationToken cancellationToken);
 
+        Task<LibraryDependencyInfo> GetDependenciesAsync(
+            LibraryIdentity libraryIdentity,
+            NuGetFramework targetFramework,
+            bool useLegacyAssetTargetFallbackBehavior,
+            SourceCacheContext cacheContext,
+            ILogger logger,
+            CancellationToken cancellationToken);
+
         /// <summary>
         /// Asynchronously gets a package downloader.
         /// </summary>

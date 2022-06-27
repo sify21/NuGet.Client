@@ -59,12 +59,15 @@ namespace NuGet.Commands
 
             telemetryActivity.StartIntervalMeasure();
 
+            bool useLegacyAssetTargetFallbackBehavior = _request.Project.TargetFrameworks.Any(e => e.DisableAssetTargetFallbackDependenciesResolution);
+
             foreach (var pair in runtimesByFramework)
             {
                 _logger.LogVerbose(string.Format(CultureInfo.CurrentCulture, Strings.Log_RestoringPackages, pair.Key.DotNetFrameworkName));
 
                 frameworkTasks.Add(WalkDependenciesAsync(projectRange,
                     pair.Key,
+                    useLegacyAssetTargetFallbackBehavior,
                     remoteWalker,
                     context,
                     token: token));
@@ -146,6 +149,7 @@ namespace NuGet.Commands
                     runtimeTasks.Add(WalkRuntimeDependenciesAsync(projectRange,
                         graph,
                         runtimeIds.Where(rid => !string.IsNullOrEmpty(rid)),
+                        useLegacyAssetTargetFallbackBehavior,
                         remoteWalker,
                         context,
                         runtimeGraph,
@@ -233,6 +237,7 @@ namespace NuGet.Commands
 
         private Task<RestoreTargetGraph> WalkDependenciesAsync(LibraryRange projectRange,
             NuGetFramework framework,
+            bool useLegacyAssetTargetFallbackBehavior,
             RemoteDependencyWalker walker,
             RemoteWalkContext context,
             CancellationToken token)
@@ -240,6 +245,7 @@ namespace NuGet.Commands
             return WalkDependenciesAsync(projectRange,
                 framework,
                 runtimeIdentifier: null,
+                useLegacyAssetTargetFallbackBehavior,
                 runtimeGraph: RuntimeGraph.Empty,
                 walker: walker,
                 context: context,
@@ -249,6 +255,7 @@ namespace NuGet.Commands
         private async Task<RestoreTargetGraph> WalkDependenciesAsync(LibraryRange projectRange,
             NuGetFramework framework,
             string runtimeIdentifier,
+            bool useLegacyAssetTargetFallbackBehavior,
             RuntimeGraph runtimeGraph,
             RemoteDependencyWalker walker,
             RemoteWalkContext context,
@@ -263,6 +270,7 @@ namespace NuGet.Commands
                 projectRange,
                 framework,
                 runtimeIdentifier,
+                useLegacyAssetTargetFallbackBehavior,
                 runtimeGraph,
                 recursive: true)
             };
@@ -432,6 +440,7 @@ namespace NuGet.Commands
         private Task<RestoreTargetGraph[]> WalkRuntimeDependenciesAsync(LibraryRange projectRange,
             RestoreTargetGraph graph,
             IEnumerable<string> runtimeIds,
+            bool useLegacyAssetTargetFallbackBehavior,
             RemoteDependencyWalker walker,
             RemoteWalkContext context,
             RuntimeGraph runtimes,
@@ -445,6 +454,7 @@ namespace NuGet.Commands
                 resultGraphs.Add(WalkDependenciesAsync(projectRange,
                     graph.Framework,
                     runtimeName,
+                    useLegacyAssetTargetFallbackBehavior,
                     runtimes,
                     walker,
                     context,

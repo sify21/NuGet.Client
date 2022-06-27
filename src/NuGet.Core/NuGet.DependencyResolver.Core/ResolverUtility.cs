@@ -26,20 +26,42 @@ namespace NuGet.DependencyResolver
             RemoteWalkContext context,
             CancellationToken cancellationToken)
         {
+            return FindLibraryCachedAsync(cache, libraryRange, framework, runtimeIdentifier, useLegacyAssetTargetFallbackBehavior: false, context, cancellationToken);
+        }
+
+        public static Task<GraphItem<RemoteResolveResult>> FindLibraryCachedAsync(
+            ConcurrentDictionary<LibraryRangeCacheKey, Task<GraphItem<RemoteResolveResult>>> cache,
+            LibraryRange libraryRange,
+            NuGetFramework framework,
+            string runtimeIdentifier,
+            bool useLegacyAssetTargetFallbackBehavior,
+            RemoteWalkContext context,
+            CancellationToken cancellationToken)
+        {
             var key = new LibraryRangeCacheKey(libraryRange, framework);
 
             if (cache.TryGetValue(key, out var graphItem))
                 return graphItem;
 
-            graphItem = cache.GetOrAdd(key, FindLibraryEntryAsync(key.LibraryRange, framework, runtimeIdentifier, context, cancellationToken));
+            graphItem = cache.GetOrAdd(key, FindLibraryEntryAsync(key.LibraryRange, framework, runtimeIdentifier, useLegacyAssetTargetFallbackBehavior, context, cancellationToken));
 
             return graphItem;
         }
 
+        public static Task<GraphItem<RemoteResolveResult>> FindLibraryEntryAsync(
+            LibraryRange libraryRange,
+            NuGetFramework framework,
+            string runtimeIdentifier,
+            RemoteWalkContext context,
+            CancellationToken cancellationToken)
+        {
+            return FindLibraryEntryAsync(libraryRange, framework, runtimeIdentifier, useLegacyAssetTargetFallbackBehavior: false, context, cancellationToken);
+        }
         public static async Task<GraphItem<RemoteResolveResult>> FindLibraryEntryAsync(
             LibraryRange libraryRange,
             NuGetFramework framework,
             string runtimeIdentifier,
+            bool useLegacyAssetTargetFallbackBehavior,
             RemoteWalkContext context,
             CancellationToken cancellationToken)
         {
@@ -78,7 +100,7 @@ namespace NuGet.DependencyResolver
 
                 try
                 {
-                    graphItem = await CreateGraphItemAsync(match, framework, currentCacheContext, context.Logger, cancellationToken);
+                    graphItem = await CreateGraphItemAsync(match, framework, useLegacyAssetTargetFallbackBehavior, currentCacheContext, context.Logger, cancellationToken);
                 }
                 catch (InvalidCacheProtocolException) when (i == 0)
                 {
@@ -104,6 +126,7 @@ namespace NuGet.DependencyResolver
         private static async Task<GraphItem<RemoteResolveResult>> CreateGraphItemAsync(
             RemoteMatch match,
             NuGetFramework framework,
+            bool useLegacyAssetTargetFallbackBehavior,
             SourceCacheContext cacheContext,
             ILogger logger,
             CancellationToken cancellationToken)
@@ -126,6 +149,7 @@ namespace NuGet.DependencyResolver
                 dependencies = await match.Provider.GetDependenciesAsync(
                     match.Library,
                     framework,
+                    useLegacyAssetTargetFallbackBehavior,
                     cacheContext,
                     logger,
                     cancellationToken);

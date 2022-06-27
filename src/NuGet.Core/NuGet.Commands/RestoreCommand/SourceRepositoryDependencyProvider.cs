@@ -34,7 +34,6 @@ namespace NuGet.Commands
         private bool _ignoreFailedSources;
         private bool _ignoreWarning;
         private bool _isFallbackFolderSource;
-        private readonly bool _useLegacyAssetTargetFallbackBehavior;
 
         private readonly ConcurrentDictionary<LibraryRangeCacheKey, AsyncLazy<LibraryDependencyInfo>> _dependencyInfoCache
             = new ConcurrentDictionary<LibraryRangeCacheKey, AsyncLazy<LibraryDependencyInfo>>();
@@ -93,8 +92,7 @@ namespace NuGet.Commands
         bool ignoreFailedSources,
         bool ignoreWarning,
         LocalPackageFileCache fileCache,
-        bool isFallbackFolderSource,
-        bool useLegacyAssetTargetFallbackBehavior)
+        bool isFallbackFolderSource)
         {
             _sourceRepository = sourceRepository ?? throw new ArgumentNullException(nameof(sourceRepository));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -103,19 +101,6 @@ namespace NuGet.Commands
             _ignoreWarning = ignoreWarning;
             _packageFileCache = fileCache;
             _isFallbackFolderSource = isFallbackFolderSource;
-            _useLegacyAssetTargetFallbackBehavior = useLegacyAssetTargetFallbackBehavior;
-        }
-
-        public SourceRepositoryDependencyProvider(
-        SourceRepository sourceRepository,
-        ILogger logger,
-        SourceCacheContext cacheContext,
-        bool ignoreFailedSources,
-        bool ignoreWarning,
-        LocalPackageFileCache fileCache,
-        bool isFallbackFolderSource) :
-        this(sourceRepository, logger, cacheContext, ignoreFailedSources, ignoreWarning, fileCache, isFallbackFolderSource, useLegacyAssetTargetFallbackBehavior: false)
-        {
         }
 
         /// <summary>
@@ -256,11 +241,27 @@ namespace NuGet.Commands
             return null;
         }
 
+        public Task<LibraryDependencyInfo> GetDependenciesAsync(
+            LibraryIdentity libraryIdentity,
+            NuGetFramework targetFramework,
+            SourceCacheContext cacheContext,
+            ILogger logger,
+            CancellationToken cancellationToken)
+        {
+            return GetDependenciesAsync(libraryIdentity,
+                targetFramework,
+                useLegacyAssetTargetFallbackBehavior: false,
+                cacheContext,
+                logger,
+                cancellationToken);
+        }
+
         /// <summary>
         /// Asynchronously gets package dependencies.
         /// </summary>
         /// <param name="libraryIdentity">A library identity.</param>
         /// <param name="targetFramework">A target framework.</param>
+        /// <param name="useLegacyAssetTargetFallbackBehavior">Whether to use the legacy asset target fallback behavior</param>
         /// <param name="cacheContext">A source cache context.</param>
         /// <param name="logger">A logger.</param>
         /// <param name="cancellationToken">A cancellation token.</param>
@@ -280,6 +281,7 @@ namespace NuGet.Commands
         public async Task<LibraryDependencyInfo> GetDependenciesAsync(
             LibraryIdentity libraryIdentity,
             NuGetFramework targetFramework,
+            bool useLegacyAssetTargetFallbackBehavior,
             SourceCacheContext cacheContext,
             ILogger logger,
             CancellationToken cancellationToken)
@@ -310,9 +312,9 @@ namespace NuGet.Commands
 
             // Therre's caching here which happens based on a bunch of stuff.
             var action = new AsyncLazy<LibraryDependencyInfo>(async () =>
-                await GetDependenciesCoreAsync(libraryIdentity, targetFramework, cacheContext, logger, cancellationToken));
+                await GetDependenciesCoreAsync(libraryIdentity, targetFramework, useLegacyAssetTargetFallbackBehavior, cacheContext, logger, cancellationToken));
 
-            var key = new LibraryRangeCacheKey(libraryIdentity, targetFramework);
+            var key = new LibraryRangeCacheKey(libraryIdentity, targetFramework); // TODO NK - Add asset target fallback in the cache key.
 
             if (cacheContext.RefreshMemoryCache)
             {
@@ -329,6 +331,7 @@ namespace NuGet.Commands
         private async Task<LibraryDependencyInfo> GetDependenciesCoreAsync(
             LibraryIdentity match,
             NuGetFramework targetFramework,
+            bool useLegacyAssetTargetFallbackBehavior,
             SourceCacheContext cacheContext,
             ILogger logger,
             CancellationToken cancellationToken)
@@ -381,7 +384,7 @@ namespace NuGet.Commands
                     packageInfo.PackageIdentity.Version,
                     match.Type);
 
-                IEnumerable<LibraryDependency> dependencyGroup = GetDependencies(packageInfo, targetFramework);
+                IEnumerable<LibraryDependency> dependencyGroup = GetDependencies(packageInfo, targetFramework, useLegacyAssetTargetFallbackBehavior);
 
                 return LibraryDependencyInfo.Create(originalIdentity, targetFramework, dependencies: dependencyGroup);
             }
@@ -488,7 +491,8 @@ namespace NuGet.Commands
 
         private IEnumerable<LibraryDependency> GetDependencies(
             FindPackageByIdDependencyInfo packageInfo,
-            NuGetFramework targetFramework)
+            NuGetFramework targetFramework,
+            bool useLegacyAssetTargetFallbackBehavior)
         {
             if (packageInfo == null)
             {
@@ -504,7 +508,7 @@ namespace NuGet.Commands
                 dependencyGroup = NuGetFrameworkUtility.GetNearest(packageInfo.DependencyGroups, dualCompatibilityFramework.SecondaryFramework, item => item.TargetFramework);
             }
 
-            if (!_useLegacyAssetTargetFallbackBehavior)
+            if (!useLegacyAssetTargetFallbackBehavior)
             {
                 // FrameworkReducer.GetNearest does not consider ATF since it is used for more than just compat
 

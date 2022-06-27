@@ -164,5 +164,9 @@ namespace NuGet.DependencyResolver
             throw new NotImplementedException();
         }
 
+        public Task<LibraryDependencyInfo> GetDependenciesAsync(LibraryIdentity libraryIdentity, NuGetFramework targetFramework, bool useLegacyAssetTargetFallbackBehavior, SourceCacheContext cacheContext, ILogger logger, CancellationToken cancellationToken)
+        {
+            return GetDependenciesAsync(libraryIdentity, targetFramework, cacheContext, logger, cancellationToken);
+        }
     }
 }
