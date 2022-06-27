@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using FluentAssertions;
 using NuGet.Common;
@@ -31,7 +30,7 @@ namespace Dotnet.Integration.Test
             _signFixture = signFixture;
         }
 
-        [CIOnlyFact]
+        [PlatformFact(Platform.Windows, Platform.Linux, CIOnly = true)]
         public async Task Verify_UnSignedPackage_Fails()
         {
             using (var packageDir = TestDirectory.Create())
@@ -75,7 +74,7 @@ namespace Dotnet.Integration.Test
             }
         }
 
-        [CIOnlyFact]
+        [PlatformFact(Platform.Windows, Platform.Linux, CIOnly = true)]
         public void Verify_SignedPackageWithoutAllowedCertificate_Fails()
         {
             // Arrange
@@ -153,7 +152,7 @@ namespace Dotnet.Integration.Test
             }
         }
 
-        [CIOnlyTheory]
+        [PlatformTheory(Platform.Windows, Platform.Linux, CIOnly = true)]
         [InlineData("true", true)]
         [InlineData("true", false)]
         [InlineData("false", true)]
@@ -197,7 +196,7 @@ namespace Dotnet.Integration.Test
             }
         }
 
-        [CIOnlyTheory]
+        [PlatformTheory(Platform.Windows, Platform.Linux, CIOnly = true)]
         [InlineData("true", true)]
         [InlineData("true", false)]
         [InlineData("false", true)]
@@ -242,16 +241,17 @@ namespace Dotnet.Integration.Test
             }
         }
 
-        [CIOnlyTheory]
+        [PlatformTheory(Platform.Windows, Platform.Linux, CIOnly = true)]
         [InlineData("true", true)]
         [InlineData("true", false)]
         [InlineData("false", true)]
         [InlineData("false", false)]
         public async Task Verify_RepositorySignedPackage_WithAuthorItemUntrustedCertificate_Fails(string allowUntrustedRoot, bool verifyCertificateFingerprint)
         {
+            IX509StoreCertificate storeCertificate = _signFixture.UntrustedSelfIssuedCertificateInCertificateStore;
+
             // Arrange
             using (var pathContext = new SimpleTestPathContext())
-            using (var testCertificate = new X509Certificate2(_signFixture.UntrustedSelfIssuedCertificateInCertificateStore))
             {
                 var nupkg = new SimpleTestPackageContext("A", "1.0.0");
                 string testDirectory = pathContext.WorkingDirectory;
@@ -259,9 +259,9 @@ namespace Dotnet.Integration.Test
                 string packagePath = Path.Combine(testDirectory, nupkg.PackageName);
 
                 //Act
-                string certificateFingerprintString = SignatureTestUtility.GetFingerprint(testCertificate, HashAlgorithmName.SHA256);
+                string certificateFingerprintString = SignatureTestUtility.GetFingerprint(storeCertificate.Certificate, HashAlgorithmName.SHA256);
                 string repoServiceIndex = "https://serviceindex.test/v3/index.json";
-                string signedPackagePath = await SignedArchiveTestUtility.RepositorySignPackageAsync(testCertificate, packagePath, pathContext.PackageSource, new Uri(repoServiceIndex));
+                string signedPackagePath = await SignedArchiveTestUtility.RepositorySignPackageAsync(storeCertificate.Certificate, packagePath, pathContext.PackageSource, new Uri(repoServiceIndex));
 
                 // Arrange
                 string trustedSignersSectionContent = $@"
@@ -297,14 +297,15 @@ namespace Dotnet.Integration.Test
             }
         }
 
-        [CIOnlyTheory]
+        [PlatformTheory(Platform.Windows, Platform.Linux, CIOnly = true)]
         [InlineData("false", true)]
         [InlineData("false", false)]
         public async Task Verify_RepositorySignedPackage_WithRepositoryItemUntrustedCertificate_AllowUntrustedRootSetFalse_Fails(string allowUntrustedRoot, bool verifyCertificateFingerprint)
         {
+            IX509StoreCertificate storeCertificate = _signFixture.UntrustedSelfIssuedCertificateInCertificateStore;
+
             // Arrange
             using (var pathContext = new SimpleTestPathContext())
-            using (var testCertificate = new X509Certificate2(_signFixture.UntrustedSelfIssuedCertificateInCertificateStore))
             {
                 var nupkg = new SimpleTestPackageContext("A", "1.0.0");
                 string testDirectory = pathContext.WorkingDirectory;
@@ -312,9 +313,9 @@ namespace Dotnet.Integration.Test
                 string packagePath = Path.Combine(testDirectory, nupkg.PackageName);
 
                 //Act
-                string certificateFingerprintString = SignatureTestUtility.GetFingerprint(testCertificate, HashAlgorithmName.SHA256);
+                string certificateFingerprintString = SignatureTestUtility.GetFingerprint(storeCertificate.Certificate, HashAlgorithmName.SHA256);
                 string repoServiceIndex = "https://serviceindex.test/v3/index.json";
-                string signedPackagePath = await SignedArchiveTestUtility.RepositorySignPackageAsync(testCertificate, packagePath, pathContext.PackageSource, new Uri(repoServiceIndex));
+                string signedPackagePath = await SignedArchiveTestUtility.RepositorySignPackageAsync(storeCertificate.Certificate, packagePath, pathContext.PackageSource, new Uri(repoServiceIndex));
 
                 // Arrange
                 string trustedSignersSectionContent = $@"
@@ -342,14 +343,15 @@ namespace Dotnet.Integration.Test
             }
         }
 
-        [CIOnlyTheory]
+        [PlatformTheory(Platform.Windows, Platform.Linux, CIOnly = true)]
         [InlineData("true", true)]
         [InlineData("true", false)]
         public async Task Verify_RepositorySignedPackage_WithRepositoryItemUntrustedCertificate_AllowUntrustedRootSetTrue_Succeeds(string allowUntrustedRoot, bool verifyCertificateFingerprint)
         {
+            IX509StoreCertificate storeCertificate = _signFixture.UntrustedSelfIssuedCertificateInCertificateStore;
+
             // Arrange
             using (var pathContext = new SimpleTestPathContext())
-            using (var testCertificate = new X509Certificate2(_signFixture.UntrustedSelfIssuedCertificateInCertificateStore))
             {
                 var nupkg = new SimpleTestPackageContext("A", "1.0.0");
                 string testDirectory = pathContext.WorkingDirectory;
@@ -357,9 +359,9 @@ namespace Dotnet.Integration.Test
                 string packagePath = Path.Combine(testDirectory, nupkg.PackageName);
 
                 //Act
-                string certificateFingerprintString = SignatureTestUtility.GetFingerprint(testCertificate, HashAlgorithmName.SHA256);
+                string certificateFingerprintString = SignatureTestUtility.GetFingerprint(storeCertificate.Certificate, HashAlgorithmName.SHA256);
                 string repoServiceIndex = "https://serviceindex.test/v3/index.json";
-                string signedPackagePath = await SignedArchiveTestUtility.RepositorySignPackageAsync(testCertificate, packagePath, pathContext.PackageSource, new Uri(repoServiceIndex));
+                string signedPackagePath = await SignedArchiveTestUtility.RepositorySignPackageAsync(storeCertificate.Certificate, packagePath, pathContext.PackageSource, new Uri(repoServiceIndex));
 
                 // Arrange
                 string trustedSignersSectionContent = $@"
@@ -385,30 +387,31 @@ namespace Dotnet.Integration.Test
             }
         }
 
-        [CIOnlyTheory]
+        [PlatformTheory(Platform.Windows, Platform.Linux, CIOnly = true)]
         [InlineData("true", true)]
         [InlineData("false", true)]
         [InlineData("true", false)]
         [InlineData("false", false)]
         public async Task Verify_RepositorySignedPackage_WithRepositoryItemUntrustedCertificate_AllowUntrustedRootSetTrue_WrongOwners_Fails(string allowUntrustedRoot, bool verifyCertificateFingerprint)
         {
+            IX509StoreCertificate storeCertificate = _signFixture.UntrustedSelfIssuedCertificateInCertificateStore;
+
             // Arrange
             using (var pathContext = new SimpleTestPathContext())
-            using (var testCertificate = new X509Certificate2(_signFixture.UntrustedSelfIssuedCertificateInCertificateStore))
             {
                 var nupkg = new SimpleTestPackageContext("A", "1.0.0");
                 await SimpleTestPackageUtility.CreatePackagesAsync(pathContext.WorkingDirectory, nupkg);
                 string packagePath = Path.Combine(pathContext.WorkingDirectory, nupkg.PackageName);
 
                 //Act
-                var certificateFingerprintString = SignatureTestUtility.GetFingerprint(testCertificate, HashAlgorithmName.SHA256);
+                var certificateFingerprintString = SignatureTestUtility.GetFingerprint(storeCertificate.Certificate, HashAlgorithmName.SHA256);
                 var packageOwners = new List<string>()
                 {
                     "nuget",
                     "contoso"
                 };
                 string repoServiceIndex = "https://serviceindex.test/v3/index.json";
-                string signedPackagePath = await SignedArchiveTestUtility.RepositorySignPackageAsync(testCertificate, packagePath, pathContext.PackageSource, new Uri(repoServiceIndex), null, packageOwners);
+                string signedPackagePath = await SignedArchiveTestUtility.RepositorySignPackageAsync(storeCertificate.Certificate, packagePath, pathContext.PackageSource, new Uri(repoServiceIndex), null, packageOwners);
 
                 // Arrange
                 string trustedSignersSectionContent = $@"
@@ -436,28 +439,29 @@ namespace Dotnet.Integration.Test
             }
         }
 
-        [CIOnlyTheory]
+        [PlatformTheory(Platform.Windows, Platform.Linux, CIOnly = true)]
         [InlineData("true", true)]
         [InlineData("true", false)]
         public async Task Verify_RepositorySignedPackage_WithRepositoryItemUntrustedCertificate_AllowUntrustedRootSetTrue_CorrectOwners_Succeeds(string allowUntrustedRoot, bool verifyCertificateFingerprint)
         {
+            IX509StoreCertificate storeCertificate = _signFixture.UntrustedSelfIssuedCertificateInCertificateStore;
+
             // Arrange
             using (var pathContext = new SimpleTestPathContext())
-            using (var testCertificate = new X509Certificate2(_signFixture.UntrustedSelfIssuedCertificateInCertificateStore))
             {
                 var nupkg = new SimpleTestPackageContext("A", "1.0.0");
                 await SimpleTestPackageUtility.CreatePackagesAsync(pathContext.WorkingDirectory, nupkg);
                 string packagePath = Path.Combine(pathContext.WorkingDirectory, nupkg.PackageName);
 
                 //Act
-                string certificateFingerprintString = SignatureTestUtility.GetFingerprint(testCertificate, HashAlgorithmName.SHA256);
+                string certificateFingerprintString = SignatureTestUtility.GetFingerprint(storeCertificate.Certificate, HashAlgorithmName.SHA256);
                 var packageOwners = new List<string>()
                 {
                     "nuget",
                     "contoso"
                 };
                 string repoServiceIndex = "https://serviceindex.test/v3/index.json";
-                string signedPackagePath = await SignedArchiveTestUtility.RepositorySignPackageAsync(testCertificate, packagePath, pathContext.PackageSource, new Uri(repoServiceIndex), null, packageOwners);
+                string signedPackagePath = await SignedArchiveTestUtility.RepositorySignPackageAsync(storeCertificate.Certificate, packagePath, pathContext.PackageSource, new Uri(repoServiceIndex), null, packageOwners);
 
                 // Arrange
                 string trustedSignersSectionContent = $@"
@@ -484,7 +488,7 @@ namespace Dotnet.Integration.Test
             }
         }
 
-        [CIOnlyTheory]
+        [PlatformTheory(Platform.Windows, Platform.Linux, CIOnly = true)]
         [InlineData("true", true)]
         [InlineData("false", true)]
         [InlineData("false", false)]
@@ -539,7 +543,7 @@ namespace Dotnet.Integration.Test
             }
         }
 
-        [CIOnlyTheory]
+        [PlatformTheory(Platform.Windows, Platform.Linux, CIOnly = true)]
         [InlineData("true", true)]
         [InlineData("false", true)]
         [InlineData("false", false)]
@@ -593,18 +597,19 @@ namespace Dotnet.Integration.Test
             }
         }
 
-        [CIOnlyFact]
+        [PlatformFact(Platform.Windows, Platform.Linux, CIOnly = true)]
         public async Task VerifyCommand_AuthorSignedPackage_WithUntrustedCertificate_AllowUntrustedRootIsSetTrue_WrongNugetConfig_Fails()
         {
+            IX509StoreCertificate storeCertificate = _signFixture.UntrustedSelfIssuedCertificateInCertificateStore;
+
             // Arrange
             using (var pathContext = new SimpleTestPathContext())
-            using (var testCertificate = new X509Certificate2(_signFixture.UntrustedSelfIssuedCertificateInCertificateStore))
             {
                 var nupkg = new SimpleTestPackageContext("A", "1.0.0");
 
                 //Act
-                string signedPackagePath = await SignedArchiveTestUtility.AuthorSignPackageAsync(testCertificate, nupkg, pathContext.WorkingDirectory);
-                string certificateFingerprintString = SignatureTestUtility.GetFingerprint(testCertificate, HashAlgorithmName.SHA256);
+                string signedPackagePath = await SignedArchiveTestUtility.AuthorSignPackageAsync(storeCertificate.Certificate, nupkg, pathContext.WorkingDirectory);
+                string certificateFingerprintString = SignatureTestUtility.GetFingerprint(storeCertificate.Certificate, HashAlgorithmName.SHA256);
 
                 // Arrange
                 string nugetConfigPath = Path.Combine(pathContext.WorkingDirectory, NuGet.Configuration.Settings.DefaultSettingsFileName);
@@ -636,18 +641,19 @@ namespace Dotnet.Integration.Test
             }
         }
 
-        [CIOnlyFact]
+        [PlatformFact(Platform.Windows, Platform.Linux, CIOnly = true)]
         public async Task VerifyCommand_AuthorSignedPackage_WithUntrustedCertificate_AllowUntrustedRootIsSetTrue_CorrectNugetConfig_Succeed()
         {
+            IX509StoreCertificate storeCertificate = _signFixture.UntrustedSelfIssuedCertificateInCertificateStore;
+
             // Arrange
             using (var pathContext = new SimpleTestPathContext())
-            using (var testCertificate = new X509Certificate2(_signFixture.UntrustedSelfIssuedCertificateInCertificateStore))
             {
                 var nupkg = new SimpleTestPackageContext("A", "1.0.0");
 
                 //Act
-                string signedPackagePath = await SignedArchiveTestUtility.AuthorSignPackageAsync(testCertificate, nupkg, pathContext.WorkingDirectory);
-                string certificateFingerprintString = SignatureTestUtility.GetFingerprint(testCertificate, HashAlgorithmName.SHA256);
+                string signedPackagePath = await SignedArchiveTestUtility.AuthorSignPackageAsync(storeCertificate.Certificate, nupkg, pathContext.WorkingDirectory);
+                string certificateFingerprintString = SignatureTestUtility.GetFingerprint(storeCertificate.Certificate, HashAlgorithmName.SHA256);
 
                 // Arrange
                 string nugetConfigPath = Path.Combine(pathContext.WorkingDirectory, NuGet.Configuration.Settings.DefaultSettingsFileName);

@@ -268,7 +268,7 @@ EndGlobal";
             }
         }
 
-        [PlatformFact(Platform.Linux, Platform.Darwin)]
+        [PlatformFact(Platform.Darwin)]
         public async Task DotnetRestore_WithUnSignedPackageAndSignatureValidationModeAsRequired_SucceedAsync()
         {
             using (var pathContext = _msbuildFixture.CreateSimpleTestPathContext())
@@ -340,14 +340,15 @@ EndGlobal";
             }
         }
 
-        [Fact]
-        public async Task DotnetRestore_WithUnSignedPackageAndSignatureValidationModeAsRequired_OptInEnvVar_True_Fails()
+        [Theory]
+        [InlineData("TRUE")]
+        [InlineData("true")]
+        public async Task DotnetRestore_WithUnSignedPackageAndSignatureValidationModeAsRequired_OptInEnvVar_True_Fails(string envVarValue)
         {
             using (var pathContext = _msbuildFixture.CreateSimpleTestPathContext())
             {
                 //Arrange
                 var envVarName = OptInPackageVerification;
-                var envVarValue = "TRUE";
                 //Setup packages and feed
                 var packageX = new SimpleTestPackageContext()
                 {
@@ -421,7 +422,7 @@ EndGlobal";
             }
         }
 
-        [PlatformFact(Platform.Linux, Platform.Darwin)]
+        [PlatformFact(Platform.Darwin)]
         public async Task DotnetRestore_WithUnSignedPackageAndSignatureValidationModeAsRequired_OptInEnvVar_NameCaseSensitive_Succeed()
         {
             using (var pathContext = _msbuildFixture.CreateSimpleTestPathContext())
