@@ -467,6 +467,7 @@ namespace NuGet.Commands
                     AssetTargetFallbackUtility.ApplyFramework(targetFrameworkInfo, packageTargetFallback, assetTargetFallback);
 
                     targetFrameworkInfo.RuntimeIdentifierGraphPath = item.GetProperty("RuntimeIdentifierGraphPath");
+                    targetFrameworkInfo.DisableAssetTargetFallbackDependenciesResolution = IsPropertyTrue(item, "DisableAssetTargetFallbackDependenciesResolution");
                 }
                 yield return targetFrameworkInfo;
             }

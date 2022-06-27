@@ -15,9 +15,15 @@ namespace NuGet.DependencyResolver
     public class LibraryRangeCacheKey : IEquatable<LibraryRangeCacheKey>
     {
         public LibraryRangeCacheKey(LibraryRange range, NuGetFramework framework)
+            : this(range, framework, useLegacyAssetTargetFallbackBehavior: false)
+        {
+        }
+
+        public LibraryRangeCacheKey(LibraryRange range, NuGetFramework framework, bool useLegacyAssetTargetFallbackBehavior)
         {
             Framework = framework;
             LibraryRange = range;
+            UseLegacyAssetTargetFallbackBehavior = useLegacyAssetTargetFallbackBehavior;
         }
 
         /// <summary>
@@ -30,6 +36,8 @@ namespace NuGet.DependencyResolver
         /// </summary>
         public LibraryRange LibraryRange { get; }
 
+        public bool UseLegacyAssetTargetFallbackBehavior { get; }
+
         public override bool Equals(object obj)
         {
             return Equals(obj as LibraryRangeCacheKey);
@@ -37,7 +45,7 @@ namespace NuGet.DependencyResolver
 
         public override int GetHashCode()
         {
-            return HashCodeCombiner.GetHashCode(LibraryRange, Framework);
+            return HashCodeCombiner.GetHashCode(LibraryRange, Framework, UseLegacyAssetTargetFallbackBehavior);
         }
 
         public bool Equals(LibraryRangeCacheKey other)
@@ -53,12 +61,13 @@ namespace NuGet.DependencyResolver
             }
 
             return LibraryRange.Equals(other.LibraryRange)
-                && Framework.Equals(other.Framework);
+                && Framework.Equals(other.Framework)
+                && UseLegacyAssetTargetFallbackBehavior == other.UseLegacyAssetTargetFallbackBehavior;
         }
 
         public override string ToString()
         {
-            return string.Format(CultureInfo.InvariantCulture, "{0} {1}", LibraryRange, Framework);
+            return string.Format(CultureInfo.InvariantCulture, "{0} {1} {2}", LibraryRange, Framework, UseLegacyAssetTargetFallbackBehavior);
         }
     }
 }

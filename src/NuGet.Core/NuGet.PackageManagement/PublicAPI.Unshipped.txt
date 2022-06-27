@@ -5,4 +5,5 @@ NuGet.PackageManagement.NuGetProjectAction.NuGetProjectAction(NuGet.Packaging.Co
 NuGet.PackageManagement.NuGetProjectAction.VersionRange.get -> NuGet.Versioning.VersionRange
 NuGet.PackageManagement.PackageProjectEventArgs.PackageProjectEventArgs(string id, string name, string projectPath) -> void
 NuGet.PackageManagement.PackageProjectEventArgs.ProjectPath.get -> string
+const NuGet.ProjectManagement.ProjectBuildProperties.DisableAssetTargetFallbackDependenciesResolution = "DisableAssetTargetFallbackDependenciesResolution" -> string
 static NuGet.PackageManagement.NuGetProjectAction.CreateInstallProjectAction(NuGet.Packaging.Core.PackageIdentity packageIdentity, NuGet.Protocol.Core.Types.SourceRepository sourceRepository, NuGet.ProjectManagement.NuGetProject project, NuGet.Versioning.VersionRange versionRange) -> NuGet.PackageManagement.NuGetProjectAction

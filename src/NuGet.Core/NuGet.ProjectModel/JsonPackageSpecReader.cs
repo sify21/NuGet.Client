@@ -1705,6 +1705,10 @@ namespace NuGet.ProjectModel
                         targetFrameworkInformation.RuntimeIdentifierGraphPath = jsonReader.ReadNextTokenAsString();
                         break;
 
+                    case "disableAssetTargetFallbackDependenciesResolution":
+                        targetFrameworkInformation.DisableAssetTargetFallbackDependenciesResolution = ReadNextTokenAsBoolOrFalse(jsonReader, packageSpec.FilePath);
+                        break;
+
                     case "targetAlias":
                         targetFrameworkInformation.TargetAlias = jsonReader.ReadNextTokenAsString();
                         break;

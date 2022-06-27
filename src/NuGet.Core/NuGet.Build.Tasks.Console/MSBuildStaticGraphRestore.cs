@@ -599,7 +599,8 @@ namespace NuGet.Build.Tasks.Console
                 {
                     FrameworkName = targetFramework,
                     TargetAlias = targetAlias,
-                    RuntimeIdentifierGraphPath = msBuildProjectInstance.GetProperty(nameof(TargetFrameworkInformation.RuntimeIdentifierGraphPath))
+                    RuntimeIdentifierGraphPath = msBuildProjectInstance.GetProperty(nameof(TargetFrameworkInformation.RuntimeIdentifierGraphPath)),
+                    DisableAssetTargetFallbackDependenciesResolution = StringComparer.OrdinalIgnoreCase.Equals((msBuildProjectInstance.GetProperty(nameof(TargetFrameworkInformation.DisableAssetTargetFallbackDependenciesResolution))), bool.TrueString)
                 };
 
                 var packageTargetFallback = MSBuildStringUtility.Split(msBuildProjectInstance.GetProperty("PackageTargetFallback")).Select(NuGetFramework.Parse).ToList();

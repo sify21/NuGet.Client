@@ -558,6 +558,7 @@ namespace NuGet.ProjectModel
                     SetDownloadDependencies(writer, framework.DownloadDependencies);
                     SetFrameworkReferences(writer, framework.FrameworkReferences);
                     SetValueIfNotNull(writer, "runtimeIdentifierGraphPath", framework.RuntimeIdentifierGraphPath);
+                    SetValueIfTrue(writer, "disableAssetTargetFallbackDependenciesResolution", framework.DisableAssetTargetFallbackDependenciesResolution);
                     writer.WriteObjectEnd();
                 }
 

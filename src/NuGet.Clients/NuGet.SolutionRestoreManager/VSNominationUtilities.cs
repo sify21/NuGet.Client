@@ -111,6 +111,7 @@ namespace NuGet.SolutionRestoreManager
 
 
             tfi.RuntimeIdentifierGraphPath = GetPropertyValueOrNull(targetFrameworkInfo.Properties, ProjectBuildProperties.RuntimeIdentifierGraphPath);
+            tfi.DisableAssetTargetFallbackDependenciesResolution = MSBuildStringUtility.IsTrue(GetPropertyValueOrNull(targetFrameworkInfo.Properties, ProjectBuildProperties.DisableAssetTargetFallbackDependenciesResolution));
 
             if (targetFrameworkInfo.PackageReferences != null)
             {

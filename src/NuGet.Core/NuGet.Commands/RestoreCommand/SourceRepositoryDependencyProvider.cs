@@ -314,7 +314,7 @@ namespace NuGet.Commands
             var action = new AsyncLazy<LibraryDependencyInfo>(async () =>
                 await GetDependenciesCoreAsync(libraryIdentity, targetFramework, useLegacyAssetTargetFallbackBehavior, cacheContext, logger, cancellationToken));
 
-            var key = new LibraryRangeCacheKey(libraryIdentity, targetFramework); // TODO NK - Add asset target fallback in the cache key.
+            var key = new LibraryRangeCacheKey(libraryIdentity, targetFramework, useLegacyAssetTargetFallbackBehavior);
 
             if (cacheContext.RefreshMemoryCache)
             {

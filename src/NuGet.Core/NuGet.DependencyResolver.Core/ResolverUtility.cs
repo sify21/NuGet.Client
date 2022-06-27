@@ -38,7 +38,7 @@ namespace NuGet.DependencyResolver
             RemoteWalkContext context,
             CancellationToken cancellationToken)
         {
-            var key = new LibraryRangeCacheKey(libraryRange, framework);
+            var key = new LibraryRangeCacheKey(libraryRange, framework, useLegacyAssetTargetFallbackBehavior);
 
             if (cache.TryGetValue(key, out var graphItem))
                 return graphItem;
