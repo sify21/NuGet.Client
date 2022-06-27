@@ -56,6 +56,9 @@ namespace NuGet.ProjectModel
         /// </summary>
         public string RuntimeIdentifierGraphPath { get; set; }
 
+        public bool DisableAssetTargetFallbackDependenciesResolution { get; set; }
+
+
         public override string ToString()
         {
             return FrameworkName.GetShortFolderName();
@@ -78,6 +81,7 @@ namespace NuGet.ProjectModel
             }
             hashCode.AddSequence(CentralPackageVersions.Values.OrderBy(s => s.Name, StringComparer.OrdinalIgnoreCase));
             hashCode.AddStringIgnoreCase(TargetAlias);
+            hashCode.AddObject(DisableAssetTargetFallbackDependenciesResolution);
             return hashCode.CombinedHash;
         }
 
@@ -107,7 +111,8 @@ namespace NuGet.ProjectModel
                    EqualityUtility.OrderedEquals(FrameworkReferences, other.FrameworkReferences, e => e.Name, ComparisonUtility.FrameworkReferenceNameComparer) &&
                    EqualityUtility.OrderedEquals(CentralPackageVersions.Values, other.CentralPackageVersions.Values, e => e.Name, StringComparer.OrdinalIgnoreCase) &&
                    PathUtility.GetStringComparerBasedOnOS().Equals(RuntimeIdentifierGraphPath, other.RuntimeIdentifierGraphPath) &&
-                   StringComparer.OrdinalIgnoreCase.Equals(TargetAlias, other.TargetAlias);
+                   StringComparer.OrdinalIgnoreCase.Equals(TargetAlias, other.TargetAlias) &&
+                   DisableAssetTargetFallbackDependenciesResolution == other.DisableAssetTargetFallbackDependenciesResolution;
         }
 
         public TargetFrameworkInformation Clone()
@@ -123,6 +128,7 @@ namespace NuGet.ProjectModel
             clonedObject.RuntimeIdentifierGraphPath = RuntimeIdentifierGraphPath;
             clonedObject.CentralPackageVersions.AddRange(CentralPackageVersions.ToDictionary(item => item.Key, item => item.Value));
             clonedObject.TargetAlias = TargetAlias;
+            clonedObject.DisableAssetTargetFallbackDependenciesResolution = DisableAssetTargetFallbackDependenciesResolution;
             return clonedObject;
         }
     }

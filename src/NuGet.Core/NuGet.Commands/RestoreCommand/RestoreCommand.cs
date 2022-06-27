@@ -1020,7 +1020,7 @@ namespace NuGet.Commands
             // Load repositories
             // the external project provider is specific to the current restore project
             context.ProjectLibraryProviders.Add(
-                    new PackageSpecReferenceDependencyProvider(updatedExternalProjects, _logger));
+                    new PackageSpecReferenceDependencyProvider(updatedExternalProjects, _logger, useLegacyAssetTargetFallbackBehavior: true));
 
             var remoteWalker = new RemoteDependencyWalker(context);
 

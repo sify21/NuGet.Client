@@ -1,0 +1,3 @@
+NuGet.ProjectModel.PackageSpecReferenceDependencyProvider.PackageSpecReferenceDependencyProvider(System.Collections.Generic.IEnumerable<NuGet.ProjectModel.ExternalProjectReference> externalProjects, NuGet.Common.ILogger logger, bool useLegacyAssetTargetFallbackBehavior) -> void
+NuGet.ProjectModel.TargetFrameworkInformation.DisableAssetTargetFallbackDependenciesResolution.get -> bool
+NuGet.ProjectModel.TargetFrameworkInformation.DisableAssetTargetFallbackDependenciesResolution.set -> void
