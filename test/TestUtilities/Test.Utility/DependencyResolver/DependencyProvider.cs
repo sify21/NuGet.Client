@@ -55,6 +55,11 @@ namespace Test.Utility
             throw new NotImplementedException();
         }
 
+        public Task<LibraryDependencyInfo> GetDependenciesAsync(LibraryIdentity libraryIdentity, NuGetFramework targetFramework, bool useLegacyAssetTargetFallbackBehavior, SourceCacheContext cacheContext, ILogger logger, CancellationToken cancellationToken)
+        {
+            return GetDependenciesAsync(libraryIdentity, targetFramework, cacheContext, logger, cancellationToken);
+        }
+
         public async Task<LibraryDependencyInfo> GetDependenciesAsync(
             LibraryIdentity match,
             NuGetFramework targetFramework,
@@ -125,6 +130,8 @@ namespace Test.Utility
 
             return null;
         }
+
+
 
         public class TestPackage
         {
