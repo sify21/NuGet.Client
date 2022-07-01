@@ -419,7 +419,7 @@ namespace NuGetConsole.Host.PowerShell.Implementation
                 if (Runspace.RunspaceAvailability == RunspaceAvailability.Available)
                 {
                     // if there is no solution open, we set the active directory to be user profile folder
-                    var targetDir = await _solutionManager.Value.IsSolutionOpenAsync() ?
+                    var targetDir = _solutionManager.Value.IsSolutionOpen ?
                         await _solutionManager.Value.GetSolutionDirectoryAsync() :
                         Environment.GetEnvironmentVariable("USERPROFILE");
 
@@ -433,7 +433,7 @@ namespace NuGetConsole.Host.PowerShell.Implementation
             // Fix for Bug 1426 Disallow ExecuteInitScripts from being executed concurrently by multiple threads.
             using (await _initScriptsLock.EnterAsync())
             {
-                if (!await _solutionManager.Value.IsSolutionOpenAsync())
+                if (!_solutionManager.Value.IsSolutionOpen)
                 {
                     return;
                 }

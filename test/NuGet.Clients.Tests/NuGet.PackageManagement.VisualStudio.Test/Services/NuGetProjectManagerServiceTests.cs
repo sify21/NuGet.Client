@@ -1842,11 +1842,6 @@ namespace NuGet.PackageManagement.VisualStudio.Test
                 throw new NotImplementedException();
             }
 
-            public Task<bool> IsSolutionOpenAsync()
-            {
-                throw new NotImplementedException();
-            }
-
             public void OnActionsExecuted(IEnumerable<ResolvedAction> actions)
             {
                 throw new NotImplementedException();

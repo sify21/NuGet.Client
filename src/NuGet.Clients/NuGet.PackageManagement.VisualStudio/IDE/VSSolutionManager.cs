@@ -180,6 +180,8 @@ namespace NuGet.PackageManagement.VisualStudio
             _initLock = new NuGetLockService(joinableTaskContext);
             _dte = new(() => asyncServiceProvider.GetDTEAsync(), NuGetUIThreadHelper.JoinableTaskFactory);
             _asyncVSSolution = new(() => asyncServiceProvider.GetServiceAsync<SVsSolution, IVsSolution>(), NuGetUIThreadHelper.JoinableTaskFactory);
+            IsSolutionOpen = false;
+            SolutionDirectory = null;
         }
 
         private async Task InitializeAsync()
@@ -187,6 +189,12 @@ namespace NuGet.PackageManagement.VisualStudio
             await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             _vsSolution = await _asyncVSSolution.GetValueAsync();
+            int hr = _vsSolution.GetSolutionInfo(out string solutionDirectory, out string soltuionFile, out string userOptsFile);
+            if (hr == VSConstants.S_OK && !string.IsNullOrEmpty(solutionDirectory))
+            {
+                IsSolutionOpen = true;
+                SolutionDirectory = solutionDirectory.TrimEnd('\\');
+            }
             var dte = await _dte.GetValueAsync();
             UserAgent.SetUserAgentString(
                     new UserAgentStringBuilder(VSNuGetClientName).WithVisualStudioSKU(dte.GetFullVsVersionString()));
@@ -203,8 +211,8 @@ namespace NuGet.PackageManagement.VisualStudio
 
             var solutionLoadedGuid = VSConstants.UICONTEXT.SolutionExistsAndFullyLoaded_guid;
             _vsMonitorSelection.GetCmdUIContextCookie(ref solutionLoadedGuid, out _solutionLoadedUICookie);
-
-            var hr = _vsMonitorSelection.AdviseSelectionEvents(this, out _selectionEventsCookie);
+            
+            hr = _vsMonitorSelection.AdviseSelectionEvents(this, out _selectionEventsCookie);
             ErrorHandler.ThrowOnFailure(hr);
             hr = _vsSolution.AdviseSolutionEvents(this, out _solutionEventsCookie);
             ErrorHandler.ThrowOnFailure(hr);
@@ -335,42 +343,16 @@ namespace NuGet.PackageManagement.VisualStudio
         /// IsSolutionOpen is true, if the dte solution is open
         /// and is saved as required
         /// </summary>
-        public bool IsSolutionOpen
-        {
-            get
-            {
-                return NuGetUIThreadHelper.JoinableTaskFactory.Run(async delegate
-                {
-                    return await IsSolutionOpenAsync();
-                });
-            }
-        }
-
-        public async Task<bool> IsSolutionOpenAsync()
-        {
-            await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-            var vsSolution = await _asyncVSSolution.GetValueAsync();
-            if (!IsSolutionOpenFromVSSolution(vsSolution))
-            {
-                // During new solution creation, NuGet runs as part of the VSTemplateWizard,
-                // the VSSolution might not recognize the solution as open, while the DTE does.
-                var dte = await _dte.GetValueAsync();
-                return IsSolutionOpenFromDTE(dte);
-            }
-            return true;
-        }
+        public bool IsSolutionOpen { get; private set; }
 
         public async Task<bool> IsSolutionAvailableAsync()
         {
-            await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-            if (!await IsSolutionOpenAsync())
-            {
+            if (!IsSolutionOpen)            {
                 // Solution is not open. Return false.
                 return false;
             }
 
+            await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
             await EnsureInitializeAsync();
 
             if (!DoesSolutionRequireAnInitialSaveAs())
@@ -427,29 +409,11 @@ namespace NuGet.PackageManagement.VisualStudio
             });
         }
 
-        public string SolutionDirectory => NuGetUIThreadHelper.JoinableTaskFactory.Run(GetSolutionDirectoryAsync);
+        public string SolutionDirectory { get; private set; }
 
-        public async Task<string> GetSolutionDirectoryAsync()
+        public Task<string> GetSolutionDirectoryAsync()
         {
-            await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-            var vsSolution = await _asyncVSSolution.GetValueAsync();
-
-            if (IsSolutionOpenFromVSSolution(vsSolution))
-            {
-                return (string)GetVSSolutionProperty(vsSolution, (int)__VSPROPID.VSPROPID_SolutionDirectory);
-            }
-            else
-            {
-                // During new solution creation, NuGet runs as part of the VSTemplateWizard,
-                // the VSSolution might not recognize the solution as open, while the DTE does.
-                var dte = await _dte.GetValueAsync();
-                if (IsSolutionOpenFromDTE(dte))
-                {
-                    return GetSolutionDirectoryFromDte(dte);
-                }
-            }
-
-            return null;
+            return Task.FromResult(SolutionDirectory);
         }
 
         private static bool IsSolutionOpenFromDTE(DTE dte)
@@ -541,7 +505,7 @@ namespace NuGet.PackageManagement.VisualStudio
 
             // although the SolutionOpened event fires, the solution may be only in memory (e.g. when
             // doing File - New File). In that case, we don't want to act on the event.
-            if (!await IsSolutionOpenAsync())
+            if (!IsSolutionOpen)
             {
                 return;
             }
@@ -608,7 +572,7 @@ namespace NuGet.PackageManagement.VisualStudio
         {
             NuGetUIThreadHelper.JoinableTaskFactory.Run(async () =>
             {
-                if (!string.IsNullOrEmpty(oldName) && await IsSolutionOpenAsync() && _solutionOpenedRaised)
+                if (!string.IsNullOrEmpty(oldName) && IsSolutionOpen && _solutionOpenedRaised)
                 {
                     await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
@@ -669,7 +633,7 @@ namespace NuGet.PackageManagement.VisualStudio
             {
                 await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-                if (await IsSolutionOpenAsync()
+                if (IsSolutionOpen
                     && await EnvDTEProjectUtility.IsSupportedAsync(envDTEProject)
                     && !EnvDTEProjectUtility.IsParentProjectExplicitlyUnsupported(envDTEProject)
                     && _solutionOpenedRaised)
@@ -1117,8 +1081,29 @@ namespace NuGet.PackageManagement.VisualStudio
 
         public int OnAfterOpenSolution(object pUnkReserved, int fNewSolution)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            try
+            {
+                var result = _vsSolution.GetSolutionInfo(out string solutionDirectory, out _, out _);
+                if (result != VSConstants.S_OK)
+                {
+                    throw new Exception("IVsSolution.GetSolutionInfo returned " + result + " during IVsSolutionEvents.OnAfterOpenSolution");
+                }
+                else if (string.IsNullOrEmpty(solutionDirectory))
+                {
+                    throw new Exception("No solution directory despite OnAfterOpenSolution callback");
+                }
+                SolutionDirectory = solutionDirectory.TrimEnd('\\');
+                IsSolutionOpen = true;
+            }
+            catch (Exception ex)
+            {
+                NuGetUIThreadHelper.JoinableTaskFactory.Run(() => TelemetryUtility.PostFaultAsync(ex, nameof(VSSolutionManager)));
+            }
             NuGetUIThreadHelper.JoinableTaskFactory.RunAsync(async () =>
-                await OnSolutionExistsAndFullyLoadedAsync()).PostOnFailure(nameof(OnAfterOpenSolution));
+            {
+                await OnSolutionExistsAndFullyLoadedAsync();
+            }).PostOnFailure(nameof(OnAfterOpenSolution));
             return VSConstants.S_OK;
         }
 
@@ -1129,6 +1114,8 @@ namespace NuGet.PackageManagement.VisualStudio
 
         public int OnBeforeCloseSolution(object pUnkReserved)
         {
+            IsSolutionOpen = false;
+            SolutionDirectory = null;
             return VSConstants.S_OK;
         }
 

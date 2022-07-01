@@ -88,11 +88,6 @@ namespace NuGet.PackageManagement.VisualStudio
         Task<string> GetSolutionFilePathAsync();
 
         /// <summary>
-        /// Returns whether the solution is open.
-        /// </summary>
-        Task<bool> IsSolutionOpenAsync();
-
-        /// <summary>
         /// Returns the list of project restore info sources. Empty if none are available.
         /// </summary>
         IReadOnlyList<object> GetAllProjectRestoreInfoSources();
