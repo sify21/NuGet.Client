@@ -4,6 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:NuGet.PackageManagement.UI"
+             xmlns:nuget="clr-namespace:NuGet.PackageManagement.UI"
+             xmlns:imaging="clr-namespace:Microsoft.VisualStudio.Imaging;assembly=Microsoft.VisualStudio.Imaging"
+             xmlns:catalog="clr-namespace:Microsoft.VisualStudio.Imaging;assembly=Microsoft.VisualStudio.ImageCatalog"
              mc:Ignorable="d"
              DataContextChanged="SolutionView_DataContextChanged"
              d:DesignHeight="300" d:DesignWidth="500">
@@ -444,7 +447,27 @@
 
       <StackPanel Grid.Row="4" Grid.Column="2">
         <RadioButton Name="newMapping">Add additional mapping to source</RadioButton>
-        <RadioButton Name="existingMapping" Content="{Binding SourceName}"/>
+        <!--<RadioButton Name="existingMapping" Content="{Binding SourceName}"/>-->
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="auto"/>
+          </Grid.ColumnDefinitions>
+          <RadioButton Grid.Column="0">Use only existing sources</RadioButton>
+          <Button
+          Grid.Column="1"
+          x:Name="_settingsButton"
+          Margin="12,0,0,0"
+          AutomationProperties.AutomationId="Button_Settings"
+          VerticalAlignment="Center"
+          Padding="0"
+          ToolTip="{x:Static nuget:Resources.ToolTip_Settings}"
+          AutomationProperties.Name="{x:Static nuget:Resources.ToolTip_Settings}">
+            <imaging:CrispImage
+            Moniker="{x:Static catalog:KnownMonikers.Settings}" />
+          </Button>
+        </Grid>
+        
       </StackPanel>
 
     </Grid>

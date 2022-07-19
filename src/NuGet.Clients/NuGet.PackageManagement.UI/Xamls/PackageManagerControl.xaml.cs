@@ -192,7 +192,7 @@ namespace NuGet.PackageManagement.UI
             set
             {
                 _topPanel.SourceRepoList.SelectedItem = value;
-                _packageDetail._solutionView.existingMapping.Content = value;
+                //_packageDetail._solutionView.existingMapping.Content = value;
             }
         }
 
