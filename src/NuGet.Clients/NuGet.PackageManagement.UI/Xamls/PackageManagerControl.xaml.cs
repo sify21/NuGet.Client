@@ -1647,7 +1647,10 @@ namespace NuGet.PackageManagement.UI
         /// <param name="packagesInfo">Corresponding Package ViewModels from PM UI. Only needed for vulnerability telemetry counts. Can be <c>null</c></param>
         internal void InstallPackage(string packageId, NuGetVersion version, IEnumerable<PackageItemViewModel> packagesInfo)
         {
-            var action = UserAction.CreateInstallAction(packageId, version, Model.IsSolution, UIUtility.ToContractsItemFilter(_topPanel.Filter));
+            IReadOnlyList<string> patterns = new List<string>() { "VS" };
+            IReadOnlyDictionary<string, IReadOnlyList<string>> psmDictonary = new Dictionary<string, IReadOnlyList<string>>() { { packageId, patterns } };
+            PackageSourceMapping mapping = new PackageSourceMapping(psmDictonary);
+            var action = UserAction.CreateInstallAction(packageId, version, Model.IsSolution, UIUtility.ToContractsItemFilter(_topPanel.Filter), mapping);
 
             ExecuteAction(
                 () =>
