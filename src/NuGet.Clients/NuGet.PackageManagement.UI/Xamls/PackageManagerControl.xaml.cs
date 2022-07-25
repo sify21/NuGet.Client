@@ -1575,7 +1575,12 @@ namespace NuGet.PackageManagement.UI
 
         private void ExecuteInstallPackageCommand(object sender, ExecutedRoutedEventArgs e)
         {
+            //new code
             var package = e.Parameter as PackageItemViewModel;
+            var sources = new List<PackageSourceContextInfo>();
+            var source = new PackageSourceContextInfo("dotnet-eng");
+            sources.Add(source);
+            package.Sources = sources;
             if (package == null || Model.IsSolution)
             {
                 return;
@@ -1647,10 +1652,10 @@ namespace NuGet.PackageManagement.UI
         /// <param name="packagesInfo">Corresponding Package ViewModels from PM UI. Only needed for vulnerability telemetry counts. Can be <c>null</c></param>
         internal void InstallPackage(string packageId, NuGetVersion version, IEnumerable<PackageItemViewModel> packagesInfo)
         {
-            IReadOnlyList<string> patterns = new List<string>() { "VS" };
-            IReadOnlyDictionary<string, IReadOnlyList<string>> psmDictonary = new Dictionary<string, IReadOnlyList<string>>() { { packageId, patterns } };
-            PackageSourceMapping mapping = new PackageSourceMapping(psmDictonary);
-            var action = UserAction.CreateInstallAction(packageId, version, Model.IsSolution, UIUtility.ToContractsItemFilter(_topPanel.Filter), mapping);
+            //IReadOnlyList<string> patterns = new List<string>() { "dotnet-eng" };
+            // I//ReadOnlyDictionary<string, IReadOnlyList<string>> psmDictonary = new Dictionary<string, IReadOnlyList<string>>() { { packageId, patterns } };
+            //PackageSourceMapping mapping = new PackageSourceMapping(psmDictonary);
+            var action = UserAction.CreateInstallAction(packageId, version, Model.IsSolution, UIUtility.ToContractsItemFilter(_topPanel.Filter));
 
             ExecuteAction(
                 () =>
