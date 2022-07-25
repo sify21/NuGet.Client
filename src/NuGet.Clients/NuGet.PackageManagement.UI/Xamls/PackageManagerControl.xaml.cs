@@ -1577,10 +1577,10 @@ namespace NuGet.PackageManagement.UI
         {
             //new code
             var package = e.Parameter as PackageItemViewModel;
-            var sources = new List<PackageSourceContextInfo>();
+            /*var sources = new List<PackageSourceContextInfo>();
             var source = new PackageSourceContextInfo("dotnet-eng");
             sources.Add(source);
-            package.Sources = sources;
+            package.Sources = sources;*/
             if (package == null || Model.IsSolution)
             {
                 return;
