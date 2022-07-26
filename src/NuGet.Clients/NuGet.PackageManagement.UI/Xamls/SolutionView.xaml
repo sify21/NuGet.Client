@@ -7,6 +7,8 @@
              xmlns:nuget="clr-namespace:NuGet.PackageManagement.UI"
              xmlns:imaging="clr-namespace:Microsoft.VisualStudio.Imaging;assembly=Microsoft.VisualStudio.Imaging"
              xmlns:catalog="clr-namespace:Microsoft.VisualStudio.Imaging;assembly=Microsoft.VisualStudio.ImageCatalog"
+             xmlns:scm="clr-namespace:System.ComponentModel;assembly=WindowsBase"
+             xmlns:pmc="NuGet.PackageManagement.UI.PackageManagerControl"
              mc:Ignorable="d"
              DataContextChanged="SolutionView_DataContextChanged"
              d:DesignHeight="300" d:DesignWidth="500">
@@ -446,7 +448,7 @@
         Text="Mapping:" />
 
       <StackPanel Grid.Row="4" Grid.Column="2">
-        <RadioButton Name="newMapping">Add additional mapping to source</RadioButton>
+        <RadioButton Name="existingMapping" Content="{Binding SourceName}"/>
         <!--<RadioButton Name="existingMapping" Content="{Binding SourceName}"/>-->
         <Grid>
           <Grid.ColumnDefinitions>

@@ -186,7 +186,7 @@ namespace NuGet.PackageManagement.UI
 
         internal InfiniteScrollList PackageList => _packageList;
 
-        internal PackageSourceMoniker SelectedSource
+        public PackageSourceMoniker SelectedSource
         {
             get => _topPanel.SourceRepoList.SelectedItem as PackageSourceMoniker;
             set
