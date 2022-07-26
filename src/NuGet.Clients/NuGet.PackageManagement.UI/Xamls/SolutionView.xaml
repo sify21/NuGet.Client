@@ -338,8 +338,6 @@
         <RowDefinition Height="auto" />
         <RowDefinition Height="10" />
         <RowDefinition Height="auto" />
-        <RowDefinition Height="10"/>
-        <RowDefinition Height="auto"/>
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="auto" />
@@ -438,40 +436,6 @@
         Click="InstallButton_Clicked"
         IsEnabled="{Binding CanInstall}"
         Content="{x:Static local:Resources.Button_Install}" />
-
-      
-      <TextBlock
-        Grid.Row="4"
-        Grid.Column="0"
-        FontWeight="Bold"
-        VerticalAlignment="Center"
-        Text="Mapping:" />
-
-      <StackPanel Grid.Row="4" Grid.Column="2">
-        <RadioButton Name="existingMapping" Content="{Binding SourceName}"/>
-        <!--<RadioButton Name="existingMapping" Content="{Binding SourceName}"/>-->
-        <Grid>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto"/>
-            <ColumnDefinition Width="auto"/>
-          </Grid.ColumnDefinitions>
-          <RadioButton Grid.Column="0">Use only existing sources</RadioButton>
-          <Button
-          Grid.Column="1"
-          x:Name="_settingsButton"
-          Margin="12,0,0,0"
-          AutomationProperties.AutomationId="Button_Settings"
-          VerticalAlignment="Center"
-          Padding="0"
-          ToolTip="{x:Static nuget:Resources.ToolTip_Settings}"
-          AutomationProperties.Name="{x:Static nuget:Resources.ToolTip_Settings}">
-            <imaging:CrispImage
-            Moniker="{x:Static catalog:KnownMonikers.Settings}" />
-          </Button>
-        </Grid>
-        
-      </StackPanel>
-
     </Grid>
   </Grid>
 </UserControl>

@@ -95,10 +95,7 @@
                     IsTabStop="False">
                     <ItemsControl.ItemTemplate>
                       <DataTemplate>
-                        <StackPanel>
-                          <TextBlock Text="{Binding}" AutomationProperties.Name="{Binding AutomationName}" />
-                          <TextBlock Text="From Source"/>
-                        </StackPanel>
+                        <TextBlock Text="{Binding}" AutomationProperties.Name="{Binding AutomationName}" />
                       </DataTemplate>
                     </ItemsControl.ItemTemplate>
                   </ItemsControl>
@@ -119,10 +116,7 @@
                     IsTabStop="False">
                     <ItemsControl.ItemTemplate>
                       <DataTemplate>
-                        <StackPanel>
-                          <TextBlock Text="{Binding}" AutomationProperties.Name="{Binding AutomationName}" />
-                          <TextBlock Text="From source"/>
-                        </StackPanel>
+                        <TextBlock Text="{Binding}" AutomationProperties.Name="{Binding AutomationName}" />
                       </DataTemplate>
                     </ItemsControl.ItemTemplate>
                   </ItemsControl>
@@ -143,10 +137,7 @@
                     IsTabStop="False">
                     <ItemsControl.ItemTemplate>
                       <DataTemplate>
-                        <StackPanel>
-                          <TextBlock Text="{Binding}" AutomationProperties.Name="{Binding AutomationName}" />
-                          <TextBlock Text="from source"/>
-                        </StackPanel>
+                        <TextBlock Text="{Binding}" AutomationProperties.Name="{Binding AutomationName}" />
                       </DataTemplate>
                     </ItemsControl.ItemTemplate>
                   </ItemsControl>

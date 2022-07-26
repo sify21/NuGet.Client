@@ -189,11 +189,7 @@ namespace NuGet.PackageManagement.UI
         public PackageSourceMoniker SelectedSource
         {
             get => _topPanel.SourceRepoList.SelectedItem as PackageSourceMoniker;
-            set
-            {
-                _topPanel.SourceRepoList.SelectedItem = value;
-                //_packageDetail._solutionView.existingMapping.Content = value;
-            }
+            set => _topPanel.SourceRepoList.SelectedItem = value;
         }
 
         internal IEnumerable<PackageSourceMoniker> PackageSources => _topPanel.PackageSources;
