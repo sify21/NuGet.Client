@@ -1596,7 +1596,9 @@ namespace NuGet.PackageManagement
             INuGetProjectContext nuGetProjectContext,
             IReadOnlyCollection<SourceRepository> activeSources,
             VersionRange versionRange,
-            CancellationToken token)
+            CancellationToken token,
+            string newMappingID = null,
+            string newMappingSource = null)
         {
             if (nuGetProjects == null)
             {
@@ -1663,7 +1665,9 @@ namespace NuGet.PackageManagement
                 activeSources,
                 nuGetProjectContext,
                 versionRange,
-                token);
+                token,
+                newMappingID,
+                newMappingSource);
                 results.AddRange(resolvedActions);
             }
 
@@ -2843,7 +2847,9 @@ namespace NuGet.PackageManagement
             IReadOnlyCollection<SourceRepository> primarySources,
             INuGetProjectContext nuGetProjectContext,
             VersionRange versionRange,
-            CancellationToken token)
+            CancellationToken token,
+            string newMappingID = null,
+            string newMappingSource = null)
         {
             if (nugetProjectActionsLookup == null)
             {
@@ -2969,7 +2975,9 @@ namespace NuGet.PackageManagement
                         cacheModifier,
                         sources,
                         nuGetProjectContext.OperationId,
-                        token);
+                        token,
+                        newMappingID,
+                        newMappingSource);
 
                     originalLockFile = originalRestoreResult.Result.LockFile;
                 }
@@ -3012,7 +3020,9 @@ namespace NuGet.PackageManagement
                 allSources,
                 nuGetProjectContext.OperationId,
                 logger,
-                token);
+                token,
+                newMappingID,
+                newMappingSource);
 
             foreach (var buildIntegratedProject in buildIntegratedProjects)
             {
@@ -3075,7 +3085,9 @@ namespace NuGet.PackageManagement
                         cacheModifier,
                         sources,
                         nuGetProjectContext.OperationId,
-                        token);
+                        token,
+                        newMappingID,
+                        newMappingSource);
                 }
 
                 // If HideWarningsAndErrors is true then restore will not display the warnings and errors.
