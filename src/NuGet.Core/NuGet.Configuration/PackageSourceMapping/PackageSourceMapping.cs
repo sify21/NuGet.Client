@@ -18,7 +18,7 @@ namespace NuGet.Configuration
         /// <summary>
         /// Source name to package patterns list.
         /// </summary>
-        internal Dictionary<string, List<string>> Patterns { get; set; }
+        internal IReadOnlyDictionary<string, IReadOnlyList<string>> Patterns { get; set; }
 
         private Lazy<SearchTree> SearchTree { get; }
 
@@ -80,16 +80,6 @@ namespace NuGet.Configuration
             }
 
             return patternsLookup;
-        }
-
-        //Adds one source to a mapping for a package
-        public void AddMapping(string packageID, string source)
-        {
-            if (!Patterns.ContainsKey(packageID))
-            {
-                Patterns[packageID] = new List<string>();
-            }
-            Patterns[packageID].Add(source);
         }
     }
 }

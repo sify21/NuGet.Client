@@ -159,11 +159,25 @@ namespace NuGet.Commands
             var settings = Settings.LoadImmutableSettingsGivenConfigPaths(projectPackageSpec.RestoreMetadata.ConfigFilePaths, settingsLoadingContext);
             var sources = restoreArgs.GetEffectiveSources(settings, projectPackageSpec.RestoreMetadata.Sources);
             var clientPolicyContext = ClientPolicyContext.GetClientPolicy(settings, restoreArgs.Log);
-            var packageSourceMapping = PackageSourceMapping.GetPackageSourceMapping(settings);
+
+            var packageSourceMappingProvider = new PackageSourceMappingProvider(settings);
+
+            var patterns = new Dictionary<string, List<string>>();
+
+            foreach (PackageSourceMappingSourceItem packageSourceNamespaceItem in packageSourceMappingProvider.GetPackageSourceMappingItems())
+            {
+                patterns.Add(packageSourceNamespaceItem.Key, new List<string>(packageSourceNamespaceItem.Patterns.Select(e => e.Pattern)));
+            }
+
             if (restoreArgs.NewMappingID != null && restoreArgs.NewMappingSource != null)
             {
-                packageSourceMapping.AddMapping(restoreArgs.NewMappingID, restoreArgs.NewMappingSource);
+                if (!patterns.ContainsKey(restoreArgs.NewMappingID))
+                {
+                    patterns[restoreArgs.NewMappingID] = new List<string>();
+                }
+                patterns[restoreArgs.NewMappingID].Add(restoreArgs.NewMappingSource);
             }
+            var packageSourceMapping = new PackageSourceMapping(patterns);
             var updateLastAccess = SettingsUtility.GetUpdatePackageLastAccessTimeEnabledStatus(settings);
 
             var sharedCache = _providerCache.GetOrCreate(
