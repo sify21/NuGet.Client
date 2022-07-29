@@ -171,13 +171,14 @@ namespace NuGet.Commands
 
             if (restoreArgs.NewMappingID != null && restoreArgs.NewMappingSource != null)
             {
-                if (!patterns.ContainsKey(restoreArgs.NewMappingID))
+                if (!patterns.ContainsKey(restoreArgs.NewMappingSource))
                 {
-                    patterns[restoreArgs.NewMappingID] = new List<string>();
+                    patterns[restoreArgs.NewMappingSource] = new List<string>();
                 }
-                patterns[restoreArgs.NewMappingID].Add(restoreArgs.NewMappingSource);
+                patterns[restoreArgs.NewMappingSource].Add(restoreArgs.NewMappingID);
             }
-            var packageSourceMapping = new PackageSourceMapping(patterns);
+            Dictionary<string, IReadOnlyList<string>> patternsReadOnly = patterns.ToDictionary(pair => pair.Key, pair => (IReadOnlyList<string>)pair.Value);
+            var packageSourceMapping = new PackageSourceMapping(patternsReadOnly);
             var updateLastAccess = SettingsUtility.GetUpdatePackageLastAccessTimeEnabledStatus(settings);
 
             var sharedCache = _providerCache.GetOrCreate(

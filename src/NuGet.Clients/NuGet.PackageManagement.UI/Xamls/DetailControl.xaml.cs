@@ -137,8 +137,8 @@ namespace NuGet.PackageManagement.UI
         private void SolutionInstallButtonClicked(object sender, EventArgs e)
         {
             var model = (PackageSolutionDetailControlModel)DataContext;
-            string newMappingSource = "dotnet-eng";
-            string newMappingID = "testMapping";
+            string newMappingSource = "dotnet-public";
+            string newMappingID = model.Id;
             if (model != null && model.SelectedVersion != null)
             {
                 var userAction = UserAction.CreateInstallAction(

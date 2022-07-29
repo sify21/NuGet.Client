@@ -845,6 +845,15 @@ namespace NuGet.PackageManagement.UI
                     newMappingSource);
 
                 results.AddRange(actions);
+
+
+                if (newMappingID != null || newMappingSource != null)
+                {
+                    PackagePatternItem packagePattern = new PackagePatternItem(newMappingID);
+                    PackageSourceMappingSourceItem mappingSourceItem = new PackageSourceMappingSourceItem(newMappingSource, new List<PackagePatternItem>() { packagePattern });
+                    PackageSourceMappingProvider mappingProvider = new PackageSourceMappingProvider(uiService.Settings);
+                    mappingProvider.AddOrUpdatePackageSourceMappingSourceItem(mappingSourceItem);
+                }
             }
             else
             {
