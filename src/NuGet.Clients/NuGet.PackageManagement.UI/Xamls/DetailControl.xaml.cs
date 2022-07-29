@@ -107,7 +107,8 @@ namespace NuGet.PackageManagement.UI
         private void ProjectInstallButtonClicked(object sender, EventArgs e)
         {
             var model = (PackageDetailControlModel)DataContext;
-
+            string newMappingSource = "dotnet-eng";
+            string newMappingID = "testMapping";
             if (model != null && model.SelectedVersion != null)
             {
                 var userAction = UserAction.CreateInstallAction(
@@ -115,7 +116,9 @@ namespace NuGet.PackageManagement.UI
                     model.SelectedVersion.Version,
                     Control.Model.IsSolution,
                     UIUtility.ToContractsItemFilter(Control._topPanel.Filter),
-                    model.SelectedVersion.Range);
+                    model.SelectedVersion.Range,
+                    newMappingID,
+                    newMappingSource);
 
                 ExecuteUserAction(userAction, NuGetActionType.Install);
             }
@@ -135,14 +138,17 @@ namespace NuGet.PackageManagement.UI
         private void SolutionInstallButtonClicked(object sender, EventArgs e)
         {
             var model = (PackageSolutionDetailControlModel)DataContext;
-
+            string newMappingSource = "dotnet-eng";
+            string newMappingID = "testMapping";
             if (model != null && model.SelectedVersion != null)
             {
                 var userAction = UserAction.CreateInstallAction(
                     model.Id,
                     model.SelectedVersion.Version,
                     Control.Model.IsSolution,
-                    UIUtility.ToContractsItemFilter(Control._topPanel.Filter));
+                    UIUtility.ToContractsItemFilter(Control._topPanel.Filter),
+                    newMappingID,
+                    newMappingSource);
 
                 ExecuteUserAction(userAction, NuGetActionType.Install);
             }
