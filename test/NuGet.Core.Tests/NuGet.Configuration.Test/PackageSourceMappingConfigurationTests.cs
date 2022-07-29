@@ -33,7 +33,7 @@ namespace NuGet.Configuration.Test
             var packageSourceMapping = PackageSourceMapping.GetPackageSourceMapping(settings);
             packageSourceMapping.IsEnabled.Should().BeTrue();
             packageSourceMapping.Patterns.Should().HaveCount(1);
-            KeyValuePair<string,List<string>> patternsForSource = packageSourceMapping.Patterns.First();
+            KeyValuePair<string,IReadOnlyList<string>> patternsForSource = packageSourceMapping.Patterns.First();
             patternsForSource.Key.Should().Be("nuget.org");
             patternsForSource.Value.Should().BeEquivalentTo(new string[] { "stuff" });
         }
@@ -62,10 +62,10 @@ namespace NuGet.Configuration.Test
             packageSourceMapping.IsEnabled.Should().BeTrue();
             packageSourceMapping.Patterns.Should().HaveCount(2);
 
-            List<string> nugetPatterns = packageSourceMapping.Patterns["nuget.org"];
+            IReadOnlyList<string> nugetPatterns = packageSourceMapping.Patterns["nuget.org"];
             nugetPatterns.Should().BeEquivalentTo(new string[] { "stuff" });
 
-            List<string> contosoPattern = packageSourceMapping.Patterns["contoso"];
+            IReadOnlyList<string> contosoPattern = packageSourceMapping.Patterns["contoso"];
             contosoPattern.Should().BeEquivalentTo(new string[] { "moreStuff" });
         }
 

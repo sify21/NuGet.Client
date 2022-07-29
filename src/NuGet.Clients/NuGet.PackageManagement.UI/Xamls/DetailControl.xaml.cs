@@ -3,14 +3,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using NuGet.Common;
-using NuGet.Configuration;
 using NuGet.PackageManagement.Telemetry;
 using NuGet.ProjectManagement;
 using NuGet.VisualStudio;
@@ -109,8 +107,7 @@ namespace NuGet.PackageManagement.UI
         private void ProjectInstallButtonClicked(object sender, EventArgs e)
         {
             var model = (PackageDetailControlModel)DataContext;
-            string newMappingSource = "dotnet-eng";
-            string newMappingID = "testMapping";
+
             if (model != null && model.SelectedVersion != null)
             {
                 var userAction = UserAction.CreateInstallAction(
@@ -118,8 +115,7 @@ namespace NuGet.PackageManagement.UI
                     model.SelectedVersion.Version,
                     Control.Model.IsSolution,
                     UIUtility.ToContractsItemFilter(Control._topPanel.Filter),
-                    newMappingID,
-                    newMappingSource);
+                    model.SelectedVersion.Range);
 
                 ExecuteUserAction(userAction, NuGetActionType.Install);
             }
@@ -139,17 +135,14 @@ namespace NuGet.PackageManagement.UI
         private void SolutionInstallButtonClicked(object sender, EventArgs e)
         {
             var model = (PackageSolutionDetailControlModel)DataContext;
-            string newMappingSource = "dotnet-eng";
-            string newMappingID = "testMapping";
+
             if (model != null && model.SelectedVersion != null)
             {
                 var userAction = UserAction.CreateInstallAction(
                     model.Id,
                     model.SelectedVersion.Version,
                     Control.Model.IsSolution,
-                    UIUtility.ToContractsItemFilter(Control._topPanel.Filter),
-                    newMappingID,
-                    newMappingSource);
+                    UIUtility.ToContractsItemFilter(Control._topPanel.Filter));
 
                 ExecuteUserAction(userAction, NuGetActionType.Install);
             }
