@@ -75,7 +75,9 @@ namespace NuGet.PackageManagement.UI
                     userAction,
                     uiService.RemoveDependencies,
                     uiService.ForceRemove,
-                    cancellationToken),
+                    cancellationToken,
+                    userAction.NewMappingID,
+                    userAction.NewMappingSource),
                 cancellationToken);
         }
 
@@ -809,7 +811,9 @@ namespace NuGet.PackageManagement.UI
             UserAction userAction,
             bool removeDependencies,
             bool forceRemove,
-            CancellationToken token)
+            CancellationToken token,
+            string newMappingID = null,
+            string newMappingSource = null)
         {
             var results = new List<ProjectAction>();
 
@@ -836,7 +840,9 @@ namespace NuGet.PackageManagement.UI
                     uiService.DependencyBehavior,
                     packageSourceNames,
                     userAction.VersionRange,
-                    token);
+                    token,
+                    newMappingID,
+                    newMappingSource);
 
                 results.AddRange(actions);
             }
