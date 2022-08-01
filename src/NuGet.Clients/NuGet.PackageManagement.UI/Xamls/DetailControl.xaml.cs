@@ -107,8 +107,8 @@ namespace NuGet.PackageManagement.UI
         private void ProjectInstallButtonClicked(object sender, EventArgs e)
         {
             var model = (PackageDetailControlModel)DataContext;
-            string newMappingSource = "dotnet-eng";
-            string newMappingID = "testMapping";
+            string newMappingSource = model.Id;
+            string newMappingID = Control.SelectedSource.SourceName;
             if (model != null && model.SelectedVersion != null)
             {
                 var userAction = UserAction.CreateInstallAction(
@@ -137,7 +137,7 @@ namespace NuGet.PackageManagement.UI
         private void SolutionInstallButtonClicked(object sender, EventArgs e)
         {
             var model = (PackageSolutionDetailControlModel)DataContext;
-            string newMappingSource = "dotnet-public";
+            string newMappingSource = Control.SelectedSource.SourceName;
             string newMappingID = model.Id;
             if (model != null && model.SelectedVersion != null)
             {
