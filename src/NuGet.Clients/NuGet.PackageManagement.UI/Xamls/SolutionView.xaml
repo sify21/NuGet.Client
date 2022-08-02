@@ -338,6 +338,8 @@
         <RowDefinition Height="auto" />
         <RowDefinition Height="10" />
         <RowDefinition Height="auto" />
+        <RowDefinition Height="10"/>
+        <RowDefinition Height="auto"/>
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="auto" />
@@ -436,6 +438,19 @@
         Click="InstallButton_Clicked"
         IsEnabled="{Binding CanInstall}"
         Content="{x:Static local:Resources.Button_Install}" />
+
+      <TextBlock
+        Grid.Row="4"
+        Grid.Column="0"
+        FontWeight="Bold"
+        VerticalAlignment="Center"
+        Text="Mapping:" />
+
+      <StackPanel Grid.Row="4" Grid.Column="2">
+        <RadioButton Name="newMapping">Add additional mapping to source</RadioButton>
+        <RadioButton Name="existingMapping">Use only existing mappings</RadioButton>
+      </StackPanel>
+      
     </Grid>
   </Grid>
 </UserControl>
