@@ -17,6 +17,7 @@
       <ResourceDictionary.MergedDictionaries>
         <local:SharedResources />
       </ResourceDictionary.MergedDictionaries>
+      <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter" />
       <local:InstalledVersionsCountConverter
         x:Key="InstalledVersionsCountConverter" />
       <local:TooltipConverter
@@ -448,7 +449,7 @@
 
       <StackPanel Grid.Row="4" Grid.Column="2">
         <RadioButton Name="newMapping" >Add additional mapping to source</RadioButton>
-        <RadioButton Name="existingMapping" >Use only existing mappings</RadioButton>
+        <RadioButton Name="existingMapping" IsChecked="true" Visibility="{Binding IsExistingMappingsButtonVisible, Converter={StaticResource booleanToVisibilityConverter}}">Use only existing mappings</RadioButton>
       </StackPanel>
       
     </Grid>

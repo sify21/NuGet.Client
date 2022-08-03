@@ -1065,6 +1065,10 @@ namespace NuGet.PackageManagement.UI
                     return;
                 }
             }
+            PackageSourceMapping packageSourceMapping = PackageSourceMapping.GetPackageSourceMapping(Settings);
+            string packageID = _detailModel.Id;
+            IReadOnlyList<string> configuredSources = packageSourceMapping.GetConfiguredPackageSources(packageID);
+            _packageDetail._solutionView._isExistingMappingsButtonVisible = configuredSources != null;
         }
 
         private void EmitSearchSelectionTelemetry(PackageItemViewModel selectedPackage)
