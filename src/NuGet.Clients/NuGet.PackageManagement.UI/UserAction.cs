@@ -50,10 +50,6 @@ namespace NuGet.PackageManagement.UI
 
         public static UserAction CreateInstallAction(string packageId, NuGetVersion packageVersion, bool isSolutionLevel, ContractsItemFilter activeTab, string newMappingID, string newMappingSource)
         {
-            if (newMappingID == null || newMappingSource == null)
-            {
-                throw new ArgumentNullException(nameof(newMappingID));
-            }
             return new UserAction(NuGetProjectActionType.Install, packageId, packageVersion, isSolutionLevel, activeTab, newMappingID, newMappingSource);
         }
 

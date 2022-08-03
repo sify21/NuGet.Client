@@ -107,8 +107,13 @@ namespace NuGet.PackageManagement.UI
         private void ProjectInstallButtonClicked(object sender, EventArgs e)
         {
             var model = (PackageDetailControlModel)DataContext;
-            string newMappingSource = model.Id;
-            string newMappingID = Control.SelectedSource.SourceName;
+            string newMappingSource = null;
+            string newMappingID = null;
+            if (_solutionView.newMapping.IsChecked == true)
+            {
+                newMappingSource = model.Id;
+                newMappingID = Control.SelectedSource.SourceName;
+            }
             if (model != null && model.SelectedVersion != null)
             {
                 var userAction = UserAction.CreateInstallAction(
@@ -137,8 +142,13 @@ namespace NuGet.PackageManagement.UI
         private void SolutionInstallButtonClicked(object sender, EventArgs e)
         {
             var model = (PackageSolutionDetailControlModel)DataContext;
-            string newMappingSource = Control.SelectedSource.SourceName;
-            string newMappingID = model.Id;
+            string newMappingSource = null;
+            string newMappingID = null;
+            if (_solutionView.newMapping.IsChecked == true)
+            {
+                newMappingSource = model.Id;
+                newMappingID = Control.SelectedSource.SourceName;
+            }
             if (model != null && model.SelectedVersion != null)
             {
                 var userAction = UserAction.CreateInstallAction(
