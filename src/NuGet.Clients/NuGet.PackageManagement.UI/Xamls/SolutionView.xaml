@@ -450,7 +450,7 @@
         Text="Mapping:"
         Name="mappingHeader"/>
 
-        <CheckBox Grid.Row="4" Grid.Column="2" Name="newMapping">Add mapping to selected source</CheckBox>
+      <CheckBox Grid.Row="4" Grid.Column="2" Name="newMapping">Add mapping to selected source</CheckBox>
       <TextBlock Grid.Row="6" Grid.Column="2" Name="existingMappings">Package already has mappings</TextBlock>
 
       
