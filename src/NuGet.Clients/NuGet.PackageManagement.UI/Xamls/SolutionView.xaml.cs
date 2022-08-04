@@ -33,22 +33,6 @@ namespace NuGet.PackageManagement.UI
         public event EventHandler<EventArgs> InstallButtonClicked;
 
         public event EventHandler<EventArgs> UninstallButtonClicked;
-
-        internal bool _isExistingMappingsButtonVisible;
-
-        public bool IsExistingMappingsButtonVisible
-        {
-            get
-            {
-                return _isExistingMappingsButtonVisible;
-            }
-
-            set
-            {
-                _isExistingMappingsButtonVisible = value;
-            }
-        }
-
         private PackageSourceMoniker SelectedSource => Control.SelectedSource;
 
         public PackageManagerControl Control { get; set; }
@@ -91,14 +75,6 @@ namespace NuGet.PackageManagement.UI
             };
 
             SortByColumn(_projectColumnHeader);
-            /*if (Control != null)
-            {
-                PackageSourceMapping packageSourceMapping = PackageSourceMapping.GetPackageSourceMapping(Control.Settings);
-                var model = (PackageSolutionDetailControlModel)Control._detailModel;
-                string packageID = model.Id;
-                IReadOnlyList<string> configuredSources = packageSourceMapping.GetConfiguredPackageSources(packageID);
-                _isExistingMappingsButtonVisible = configuredSources.Count > 0;
-            }*/
         }
 
         private void Columns_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)

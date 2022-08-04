@@ -1065,10 +1065,31 @@ namespace NuGet.PackageManagement.UI
                     return;
                 }
             }
+            //Shows text if there are already mappings to selected package
             PackageSourceMapping packageSourceMapping = PackageSourceMapping.GetPackageSourceMapping(Settings);
             string packageID = _detailModel.Id;
             IReadOnlyList<string> configuredSources = packageSourceMapping.GetConfiguredPackageSources(packageID);
-            _packageDetail._solutionView._isExistingMappingsButtonVisible = configuredSources != null;
+            if (configuredSources == null)
+            {
+                _packageDetail._solutionView.existingMappings.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                _packageDetail._solutionView.existingMappings.Visibility = Visibility.Visible;
+            }
+            //Hides mapping panel if All sources selected
+            if (SelectedSource.SourceName == "All")
+            {
+                _packageDetail._solutionView.mappingHeader.Visibility = Visibility.Collapsed;
+                _packageDetail._solutionView.newMapping.Visibility = Visibility.Collapsed;
+                _packageDetail._solutionView.existingMappings.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                _packageDetail._solutionView.mappingHeader.Visibility = Visibility.Visible;
+                _packageDetail._solutionView.newMapping.Visibility = Visibility.Visible;
+                _packageDetail._solutionView.existingMappings.Visibility = Visibility.Visible;
+            }
         }
 
         private void EmitSearchSelectionTelemetry(PackageItemViewModel selectedPackage)
