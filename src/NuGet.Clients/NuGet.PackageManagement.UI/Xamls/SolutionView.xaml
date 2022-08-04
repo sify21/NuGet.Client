@@ -343,6 +343,8 @@
         <RowDefinition Height="auto"/>
         <RowDefinition Height="10"/>
         <RowDefinition Height="auto"/>
+        <RowDefinition Height="10"/>
+        <RowDefinition Height="auto"/>
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="auto" />
@@ -453,7 +455,13 @@
       <CheckBox Grid.Row="4" Grid.Column="2" Name="newMapping">Add mapping to selected source</CheckBox>
       <TextBlock Grid.Row="6" Grid.Column="2" Name="existingMappings">Package already has mappings</TextBlock>
 
-      
+      <TextBlock
+        Grid.Row="8"
+        Grid.Column="2">
+        <Hyperlink>
+          <Run Text="Package Source Mapping Settings"/>
+        </Hyperlink>
+      </TextBlock>
     </Grid>
   </Grid>
 </UserControl>
