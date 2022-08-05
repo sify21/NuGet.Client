@@ -35,7 +35,7 @@ namespace NuGet.PackageManagement.UI
         private readonly ISourceRepositoryProvider _sourceProvider;
         private readonly NuGetPackageManager _packageManager;
         private readonly INuGetLockService _lockService;
-        //public bool IsPackageSourceMappingEnabled { get; private set; }
+        public bool IsPackageSourceMappingEnabled { get; private set; }
 
         /// <summary>
         /// Create a UIActionEngine to perform installs/uninstalls
@@ -524,7 +524,7 @@ namespace NuGet.PackageManagement.UI
 
                     var packageSourceMapping = PackageSourceMapping.GetPackageSourceMapping(uiService.Settings);
                     bool isPackageSourceMappingEnabled = packageSourceMapping?.IsEnabled ?? false;
-                    //IsPackageSourceMappingEnabled = isPackageSourceMappingEnabled;
+                    IsPackageSourceMappingEnabled = isPackageSourceMappingEnabled;
                     var actionTelemetryEvent = new VSActionsTelemetryEvent(
                         uiService.ProjectContext.OperationId.ToString(),
                         projectIds,

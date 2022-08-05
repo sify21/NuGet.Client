@@ -341,9 +341,7 @@
         <RowDefinition Height="auto" />
         <RowDefinition Height="10"/>
         <RowDefinition Height="auto"/>
-        <RowDefinition Height="10"/>
         <RowDefinition Height="auto"/>
-        <RowDefinition Height="10"/>
         <RowDefinition Height="auto"/>
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
@@ -448,16 +446,16 @@
         Grid.Row="4"
         Grid.Column="0"
         FontWeight="Bold"
-        VerticalAlignment="Center"
         Text="Mapping:"
         Name="mappingHeader"/>
 
-      <CheckBox Grid.Row="4" Grid.Column="2" Name="newMapping">Add mapping to selected source</CheckBox>
-      <TextBlock Grid.Row="6" Grid.Column="2" Name="existingMappings">Package already has mappings</TextBlock>
+      <CheckBox Grid.Row="4" Grid.Column="2" Name="newMapping" Margin="0,0,0,10">Add mapping to selected source</CheckBox>
+      <TextBlock Grid.Row="5" Grid.Column="2" Name="existingMappings" Margin="0,0,0,10">Package already has mappings</TextBlock>
 
       <TextBlock
-        Grid.Row="8"
-        Grid.Column="2">
+        Grid.Row="6"
+        Grid.Column="2"
+        Name="settingsLink">
         <Hyperlink>
           <Run Text="Package Source Mapping Settings"/>
         </Hyperlink>

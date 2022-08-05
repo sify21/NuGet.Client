@@ -59,7 +59,7 @@
         Content="{x:Static nuget:Resources.Button_Copy}"
         Click="CopyButtonClicked" />
     </Grid>
-    <TextBlock Grid.Row="2" Name="_packageSourceMapping">
+    <TextBlock Grid.Row="1" Name="_packageSourceMapping" Margin="12,12,12,0">
       Package source mapping is enabled
     </TextBlock>
     <Border

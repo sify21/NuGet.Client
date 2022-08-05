@@ -1083,12 +1083,13 @@ namespace NuGet.PackageManagement.UI
                 _packageDetail._solutionView.mappingHeader.Visibility = Visibility.Collapsed;
                 _packageDetail._solutionView.newMapping.Visibility = Visibility.Collapsed;
                 _packageDetail._solutionView.existingMappings.Visibility = Visibility.Collapsed;
+                _packageDetail._solutionView.settingsLink.Visibility = Visibility.Collapsed;
             }
             else
             {
                 _packageDetail._solutionView.mappingHeader.Visibility = Visibility.Visible;
                 _packageDetail._solutionView.newMapping.Visibility = Visibility.Visible;
-                _packageDetail._solutionView.existingMappings.Visibility = Visibility.Visible;
+                _packageDetail._solutionView.settingsLink.Visibility = Visibility.Visible;
             }
         }
 

@@ -111,8 +111,8 @@ namespace NuGet.PackageManagement.UI
             string newMappingID = null;
             if (_solutionView.newMapping.IsChecked == true)
             {
-                newMappingSource = model.Id;
-                newMappingID = Control.SelectedSource.SourceName;
+                newMappingID = model.Id;
+                newMappingSource = Control.SelectedSource.SourceName;
             }
             if (model != null && model.SelectedVersion != null)
             {
@@ -146,8 +146,8 @@ namespace NuGet.PackageManagement.UI
             string newMappingID = null;
             if (_solutionView.newMapping.IsChecked == true)
             {
-                newMappingSource = model.Id;
-                newMappingID = Control.SelectedSource.SourceName;
+                newMappingID = model.Id;
+                newMappingSource = Control.SelectedSource.SourceName;
             }
             if (model != null && model.SelectedVersion != null)
             {
