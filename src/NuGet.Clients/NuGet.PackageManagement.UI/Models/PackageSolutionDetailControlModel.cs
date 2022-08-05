@@ -31,6 +31,7 @@ namespace NuGet.PackageManagement.UI
         // Indicates whether the SelectCheckBoxState is being updated in code. True means the state is being updated by code, while false means the state is changed by user clicking the checkbox.
         private bool _updatingSelectCheckBoxState;
         private bool? _selectCheckBoxState;
+        private bool? _selectMappingCheckBoxState;
         private bool _isInBatchUpdate;
         private List<PackageInstallationInfo> _projects; // List of projects in the solution
 
@@ -55,7 +56,7 @@ namespace NuGet.PackageManagement.UI
             // when the SelectedVersion is changed, we need to update CanInstall and CanUninstall.
             PropertyChanged += (_, e) =>
             {
-                if (e.PropertyName == nameof(SelectedVersion))
+                if (e.PropertyName == nameof(SelectedVersion) || e.PropertyName == "SelectMappingCheckBoxState")
                 {
                     UpdateCanInstallAndCanUninstall();
                 }
@@ -355,6 +356,19 @@ namespace NuGet.PackageManagement.UI
             {
                 _selectCheckBoxState = value;
                 OnPropertyChanged(nameof(SelectCheckBoxState));
+            }
+        }
+
+        public bool? SelectMappingCheckBoxState
+        {
+            get
+            {
+                return _selectMappingCheckBoxState;
+            }
+            set
+            {
+                _selectMappingCheckBoxState = value;
+                OnPropertyChanged(nameof(SelectMappingCheckBoxState));
             }
         }
 
