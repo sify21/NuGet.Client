@@ -16,11 +16,21 @@ namespace NuGet.PackageManagement.UI
     {
         private bool _initialized;
         private INuGetUIContext _uiContext;
+        //private bool _isPackageSourceMappingEnabled;
 
         public PreviewWindow(INuGetUIContext uiContext)
         {
             _initialized = false;
             _uiContext = uiContext;
+            /* _isPackageSourceMappingEnabled = _uiContext.UIActionEngine.IsPackageSourceMappingEnabled;
+            if (_isPackageSourceMappingEnabled)
+            {
+                _packageSourceMapping.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                _packageSourceMapping.Visibility = Visibility.Collapsed;
+            }*/
             InitializeComponent();
             _doNotShowCheckBox.IsChecked = IsDoNotShowPreviewWindowEnabled();
             var copyBindings = ApplicationCommands.Copy.InputGestures;
