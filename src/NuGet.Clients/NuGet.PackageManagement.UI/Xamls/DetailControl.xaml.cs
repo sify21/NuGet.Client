@@ -58,6 +58,7 @@ namespace NuGet.PackageManagement.UI
                 _solutionView.InstallButtonClicked -= SolutionInstallButtonClicked;
                 _solutionView.UninstallButtonClicked -= SolutionUninstallButtonClicked;
             }
+            _solutionView.Control = Control;
         }
 
         /// <summary>

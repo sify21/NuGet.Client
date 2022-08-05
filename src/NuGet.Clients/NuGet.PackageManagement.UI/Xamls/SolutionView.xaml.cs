@@ -343,5 +343,10 @@ namespace NuGet.PackageManagement.UI
                 oldValue ? ToggleState.On : ToggleState.Off,
                 newValue ? ToggleState.On : ToggleState.Off);
         }
+
+        private void SettingsButtonClicked(object sender, EventArgs e)
+        {
+            Control.Model.UIController.LaunchNuGetOptionsDialog(OptionsPage.PackageSources);
+        }
     }
 }
