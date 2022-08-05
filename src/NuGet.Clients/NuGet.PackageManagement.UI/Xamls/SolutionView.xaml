@@ -465,8 +465,12 @@
         Grid.Row="6"
         Grid.Column="2"
         Name="settingsLink"
-        Click="SettingsButtonClicked">
-        Package Source Mapping Settings
+        Click="SettingsButtonClicked"
+        Background="Transparent"
+        BorderBrush="Transparent">
+        <Hyperlink>
+          <Run>Package Source Mapping Settings</Run>
+        </Hyperlink>
       </Button>
     </Grid>
   </Grid>
