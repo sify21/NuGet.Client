@@ -362,7 +362,12 @@ namespace NuGet.PackageManagement.UI
         {
             get
             {
-                return _canInstall;
+                bool isPackageMapped = true;
+                if (IsPackageSourceMappingEnabled == true && IsNewMappingAdded == false && IsExistingMappingsNull == true)
+                {
+                    isPackageMapped = false;
+                }
+                return _canInstall && isPackageMapped == true;
             }
             set
             {

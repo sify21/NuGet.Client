@@ -1068,14 +1068,17 @@ namespace NuGet.PackageManagement.UI
             //Shows text if there are already mappings to selected package
             PackageSourceMapping packageSourceMapping = PackageSourceMapping.GetPackageSourceMapping(Settings);
             string packageID = _detailModel.Id;
+            _detailModel.IsPackageSourceMappingEnabled = packageSourceMapping.IsEnabled;
             IReadOnlyList<string> configuredSources = packageSourceMapping.GetConfiguredPackageSources(packageID);
             if (configuredSources == null)
             {
                 _packageDetail._solutionView.existingMappings.Visibility = Visibility.Collapsed;
+                _detailModel.IsExistingMappingsNull = true;
             }
             else
             {
                 _packageDetail._solutionView.existingMappings.Visibility = Visibility.Visible;
+                _detailModel.IsExistingMappingsNull = false;
             }
             //Hides mapping panel if All sources selected
             if (SelectedSource.SourceName == "All")
