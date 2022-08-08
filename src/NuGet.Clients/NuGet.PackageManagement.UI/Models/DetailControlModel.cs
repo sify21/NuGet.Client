@@ -99,11 +99,8 @@ namespace NuGet.PackageManagement.UI
         public int RecommendedCount { get; private set; }
         public bool RecommendPackages { get; private set; }
         public (string modelVersion, string vsixVersion)? RecommenderVersion { get; private set; }
-
         public bool IsPackageSourceMappingEnabled { get; set; }
-
-        public bool IsNewMappingAdded { get; set; }
-
+        public bool IsAllSourcesSelected { get; set; }
         public bool IsExistingMappingsNull { get; set; }
         protected IServiceBroker ServiceBroker { get; }
 

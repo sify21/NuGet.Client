@@ -1069,6 +1069,8 @@ namespace NuGet.PackageManagement.UI
             PackageSourceMapping packageSourceMapping = PackageSourceMapping.GetPackageSourceMapping(Settings);
             string packageID = _detailModel.Id;
             _detailModel.IsPackageSourceMappingEnabled = packageSourceMapping.IsEnabled;
+            //for install button binding
+            _detailModel.IsAllSourcesSelected = SelectedSource.SourceName == "All";
             IReadOnlyList<string> configuredSources = packageSourceMapping.GetConfiguredPackageSources(packageID);
             if (configuredSources == null)
             {

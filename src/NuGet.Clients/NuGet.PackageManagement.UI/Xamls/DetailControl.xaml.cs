@@ -149,11 +149,6 @@ namespace NuGet.PackageManagement.UI
             {
                 newMappingID = model.Id;
                 newMappingSource = Control.SelectedSource.SourceName;
-                Control._detailModel.IsNewMappingAdded = true;
-            }
-            else
-            {
-                Control._detailModel.IsNewMappingAdded = false;
             }
             if (model != null && model.SelectedVersion != null)
             {
