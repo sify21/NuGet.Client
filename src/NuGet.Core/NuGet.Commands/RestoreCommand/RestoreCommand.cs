@@ -16,6 +16,7 @@ using NuGet.Frameworks;
 using NuGet.LibraryModel;
 using NuGet.Packaging.Core;
 using NuGet.ProjectModel;
+using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
 using NuGet.Repositories;
 using NuGet.RuntimeModel;
@@ -280,6 +281,9 @@ namespace NuGet.Commands
                     });
                 }
 
+                var sources = _request.DependencyProviders.RemoteProviders.Select(e => e.SourceRepository);
+                await CheckVulnerabilitiesAsync(sources, graphs, _logger, token);
+
                 telemetry.StartIntervalMeasure();
                 // Create assets file
                 LockFile assetsFile = BuildAssetsFile(
@@ -440,6 +444,41 @@ namespace NuGet.Commands
                     dependencyGraphSpec: _request.DependencyGraphSpec,
                     _request.ProjectStyle,
                     restoreTime.Elapsed);
+            }
+        }
+
+        private async Task CheckVulnerabilitiesAsync(IEnumerable<SourceRepository> sourceRepos, IEnumerable<RestoreTargetGraph> graphs, ILogger logger, CancellationToken token)
+        {
+            List<VulnerabilityInfoResource> vulnerabilityInfoSources = new();
+            foreach (var sourceRepo in sourceRepos)
+            {
+                var resourceResult = await sourceRepo.GetResourceAsync<VulnerabilityInfoResource>();
+                if (resourceResult != null)
+                {
+                    vulnerabilityInfoSources.Add(resourceResult);
+                }
+            }
+
+            // In restore command providers cache, we can add something similar to the SourceRepositoryDependencyProvider and that can manage the vulnerabilities.
+            foreach (var infoSource in vulnerabilityInfoSources)
+            {
+                foreach (var targetGraph in graphs)
+                {
+                    foreach (var graphItem in targetGraph.Flattened.OrderBy(x => x.Key))
+                    {
+                        var package = graphItem.Key;
+
+                        if (await infoSource.IsPackageVulnerableAsync(package.Name, package.Version, logger, token))
+                        {
+                            var logMessage = RestoreLogMessage.CreateWarning(
+                                NuGetLogCode.NU1901,
+                                string.Format("Package '{0} {1}' has a reported vulnerability.", package.Name, package.Version),
+                                package.Name,
+                                targetGraph.TargetGraphName);
+                            _logger.Log(logMessage);
+                        }
+                    }
+                }
             }
         }
 

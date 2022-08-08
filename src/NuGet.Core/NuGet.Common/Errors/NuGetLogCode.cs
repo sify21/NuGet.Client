@@ -337,6 +337,11 @@ namespace NuGet.Common
         NU1803 = 1803,
 
         /// <summary>
+        /// Package has a vulnerability.
+        /// </summary>
+        NU1901 = 1901,
+
+        /// <summary>
         /// Undefined signature error
         /// </summary>
         NU3000 = 3000,
