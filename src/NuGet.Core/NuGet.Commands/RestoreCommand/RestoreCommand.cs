@@ -472,7 +472,7 @@ namespace NuGet.Commands
                         {
                             var logMessage = RestoreLogMessage.CreateWarning(
                                 NuGetLogCode.NU1901,
-                                string.Format("Package '{0} {1}' has a reported vulnerability.", package.Name, package.Version),
+                                string.Format("Package '{0} {1}' has a reported vulnerability. Advisory Url: {2}", package.Name, package.Version, "advisoryUrl"),
                                 package.Name,
                                 targetGraph.TargetGraphName);
                             _logger.Log(logMessage);
