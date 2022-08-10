@@ -28,6 +28,10 @@ namespace NuGet.Commands
 
         private readonly LocalPackageFileCache _fileCache = new LocalPackageFileCache();
 
+        private readonly ConcurrentDictionary<SourceRepository, VulnerabilityInformationProvider> _vulnerabilityInformationProviders
+            = new ConcurrentDictionary<SourceRepository, VulnerabilityInformationProvider>();
+
+        // In here we can have a list of the vulnerability/dependency info resources.
         public RestoreCommandProviders GetOrCreate(
             string globalPackagesPath,
             IReadOnlyList<string> fallbackPackagesPaths,
@@ -98,6 +102,7 @@ namespace NuGet.Commands
             }
 
             var remoteProviders = new List<IRemoteDependencyProvider>(sources.Count);
+            var vulnerabilityInformationProviders = new List<VulnerabilityInformationProvider>();
 
             isFallbackFolder = false;
 
@@ -113,9 +118,15 @@ namespace NuGet.Commands
                     isFallbackFolderSource: isFallbackFolder));
 
                 remoteProviders.Add(remoteProvider);
+
+                if (source.PackageSource.IsHttp)
+                {
+                    var vulnerabilityInformationProvider = _vulnerabilityInformationProviders.GetOrAdd(source, (source) => new VulnerabilityInformationProvider(source));
+                    vulnerabilityInformationProviders.Add(vulnerabilityInformationProvider);
+                }
             }
 
-            return new RestoreCommandProviders(globalCache, fallbackFolders, localProviders, remoteProviders, _fileCache);
+            return new RestoreCommandProviders(globalCache, fallbackFolders, localProviders, remoteProviders, _fileCache, vulnerabilityInformationProviders);
         }
     }
 }

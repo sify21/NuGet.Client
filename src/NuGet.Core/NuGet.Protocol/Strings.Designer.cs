@@ -349,6 +349,15 @@ namespace NuGet.Protocol {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to read the vulnerability information for sources {0}..
+        /// </summary>
+        internal static string Log_FailedToReadVulnerabilityInformation {
+            get {
+                return ResourceManager.GetString("Log_FailedToReadVulnerabilityInformation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Failed to retrieve information about &apos;{0}&apos; from remote source &apos;{1}&apos;..
         /// </summary>
         internal static string Log_FailedToRetrievePackage {
@@ -961,7 +970,7 @@ namespace NuGet.Protocol {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You are running the &apos;{0}&apos; operation with an &apos;HTTP&apos; source, &apos;{1}&apos;. Non-HTTPS access will be removed in a future version. Consider migrating to &apos;HTTPS&apos; sources..
+        ///   Looks up a localized string similar to You are running the &apos;{0}&apos; operation with an &apos;HTTP&apos; source, &apos;{1}&apos;. Non-HTTPS access will be removed in a future version. Consider migrating to an &apos;HTTPS&apos; source..
         /// </summary>
         internal static string Warning_HttpServerUsage {
             get {

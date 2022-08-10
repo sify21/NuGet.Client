@@ -16,6 +16,7 @@ namespace NuGet.Commands
     /// </summary>
     public class RestoreCommandProviders
     {
+        
         /// <summary>
         /// Providers used by the restore command. These can be shared across restores.
         /// </summary>
@@ -38,6 +39,17 @@ namespace NuGet.Commands
             PackageFileCache = packageFileCache ?? throw new ArgumentNullException(nameof(packageFileCache));
         }
 
+        internal RestoreCommandProviders(NuGetv3LocalRepository globalPackages,
+            IReadOnlyList<NuGetv3LocalRepository> fallbackPackageFolders,
+            IReadOnlyList<IRemoteDependencyProvider> localProviders,
+            IReadOnlyList<IRemoteDependencyProvider> remoteProviders,
+            LocalPackageFileCache packageFileCache,
+            IReadOnlyList<VulnerabilityInformationProvider> vulnerabilityInfoProviders) :
+            this(globalPackages, fallbackPackageFolders, localProviders, remoteProviders, packageFileCache)
+        {
+            VulnerabilityInfoProviders = vulnerabilityInfoProviders;
+        }
+
         /// <summary>
         /// A <see cref="NuGetv3LocalRepository"/> repository may be passed in as part of the request.
         /// This allows multiple restores to share the same cache for the global packages folder
@@ -52,6 +64,8 @@ namespace NuGet.Commands
         public IReadOnlyList<IRemoteDependencyProvider> RemoteProviders { get; }
 
         public LocalPackageFileCache PackageFileCache { get; }
+
+        internal IReadOnlyList<VulnerabilityInformationProvider> VulnerabilityInfoProviders { get; }
 
         public static RestoreCommandProviders Create(
             string globalFolderPath,
@@ -103,7 +117,7 @@ namespace NuGet.Commands
 
             isFallbackFolder = false;
             var remoteProviders = new List<IRemoteDependencyProvider>();
-
+            var vulnerabilityInformationProviders = new List<VulnerabilityInformationProvider>();
             foreach (var source in sources)
             {
                 var provider = new SourceRepositoryDependencyProvider(
@@ -116,6 +130,11 @@ namespace NuGet.Commands
                     isFallbackFolderSource: isFallbackFolder);
 
                 remoteProviders.Add(provider);
+
+                if (source.PackageSource.IsHttp)
+                {
+                    vulnerabilityInformationProviders.Add(new VulnerabilityInformationProvider(source));
+                }
             }
 
             return new RestoreCommandProviders(
@@ -123,7 +142,8 @@ namespace NuGet.Commands
                 fallbackPackageFolders,
                 localProviders,
                 remoteProviders,
-                packageFileCache);
+                packageFileCache,
+                vulnerabilityInformationProviders);
         }
     }
 }

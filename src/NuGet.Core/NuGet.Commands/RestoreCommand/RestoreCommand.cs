@@ -281,8 +281,7 @@ namespace NuGet.Commands
                     });
                 }
 
-                var sources = _request.DependencyProviders.RemoteProviders.Select(e => e.SourceRepository);
-                await CheckVulnerabilitiesAsync(sources, graphs, _logger, token);
+                await CheckVulnerabilitiesAsync(graphs, _logger, token);
 
                 telemetry.StartIntervalMeasure();
                 // Create assets file
@@ -447,38 +446,59 @@ namespace NuGet.Commands
             }
         }
 
-        private async Task CheckVulnerabilitiesAsync(IEnumerable<SourceRepository> sourceRepos, IEnumerable<RestoreTargetGraph> graphs, ILogger logger, CancellationToken token)
+        private async Task CheckVulnerabilitiesAsync(IEnumerable<RestoreTargetGraph> graphs, ILogger logger, CancellationToken token)
         {
-            List<VulnerabilityInfoResource> vulnerabilityInfoSources = new();
-            foreach (var sourceRepo in sourceRepos)
+            var vulnerabilityData = await GetAllAvailableVulnerabilityData(logger, token);
+            Dictionary<string, List<VulnerabilityInfoResource.PackageMetadata>> uniqueVulnerabilityData = null;
+
+            if (vulnerabilityData.Count == 0)
             {
-                var resourceResult = await sourceRepo.GetResourceAsync<VulnerabilityInfoResource>();
-                if (resourceResult != null)
-                {
-                    vulnerabilityInfoSources.Add(resourceResult);
-                }
+                return;
+            }
+            if (vulnerabilityData.Count == 1)
+            {
+                uniqueVulnerabilityData = vulnerabilityData[0];
+            }
+            if (vulnerabilityData.Count > 1)
+            {
+                uniqueVulnerabilityData = vulnerabilityData[0];
             }
 
-            // In restore command providers cache, we can add something similar to the SourceRepositoryDependencyProvider and that can manage the vulnerabilities.
-            foreach (var infoSource in vulnerabilityInfoSources)
+            foreach (var targetGraph in graphs)
             {
-                foreach (var targetGraph in graphs)
+                foreach (var graphItem in targetGraph.Flattened.OrderBy(x => x.Key))
                 {
-                    foreach (var graphItem in targetGraph.Flattened.OrderBy(x => x.Key))
-                    {
-                        var package = graphItem.Key;
+                    var package = graphItem.Key;
 
-                        if (await infoSource.IsPackageVulnerableAsync(package.Name, package.Version, logger, token))
+                    if (uniqueVulnerabilityData.TryGetValue(package.Name, out var packageMetadataList))
+                    {
+                        var vulnerabilities = packageMetadataList.Where(e => e.Version.Equals(package.Version));
+                        foreach (var result in vulnerabilities)
                         {
                             var logMessage = RestoreLogMessage.CreateWarning(
                                 NuGetLogCode.NU1901,
-                                string.Format("Package '{0} {1}' has a reported vulnerability. Advisory Url: {2}", package.Name, package.Version, "advisoryUrl"),
+                                string.Format("Package '{0} {1}' has a reported vulnerability. Advisory Url: {2} Severity: {3}", package.Name, package.Version, result.AdvisoryUrl, result.Severity),
                                 package.Name,
                                 targetGraph.TargetGraphName);
                             _logger.Log(logMessage);
                         }
                     }
                 }
+            }
+
+            async Task<List<Dictionary<string, List<VulnerabilityInfoResource.PackageMetadata>>>> GetAllAvailableVulnerabilityData(ILogger logger, CancellationToken token)
+            {
+                List<Dictionary<string, List<VulnerabilityInfoResource.PackageMetadata>>> vulnerabilityInformationMetadata = new();
+
+                foreach (var vulnerabilityInfoProvider in _request.DependencyProviders.VulnerabilityInfoProviders)
+                {
+                    var data = await vulnerabilityInfoProvider.GetVulnerabilitiesAsync(logger, token);
+                    if (data != null)
+                    {
+                        vulnerabilityInformationMetadata.Add(data);
+                    }
+                }
+                return vulnerabilityInformationMetadata;
             }
         }
 
