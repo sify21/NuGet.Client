@@ -1424,6 +1424,6 @@ Copyright (c) .NET Foundation. All rights reserved.
     won't exist in that case.
     ============================================================
   -->
-  <Import Project="NuGet.RestoreEx.targets" Condition="'$(RestoreUseStaticGraphEvaluation)' == 'true' And Exists('NuGet.RestoreEx.targets')" />
+  <Import Project="NuGet.RestoreEx.targets" Condition="'$(BuildingInsideVisualStudio)' != 'true' And '$(RestoreUseStaticGraphEvaluation)' == 'true' And Exists('NuGet.RestoreEx.targets')" />
 
 </Project>
