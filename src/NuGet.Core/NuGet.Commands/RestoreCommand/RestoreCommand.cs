@@ -475,6 +475,7 @@ namespace NuGet.Commands
                         var vulnerabilities = packageMetadataList.Where(e => e.Version.Equals(package.Version));
                         foreach (var result in vulnerabilities)
                         {
+                            // TODO NK - Figure out the multiple advisories option.
                             var logMessage = RestoreLogMessage.CreateWarning(
                                 NuGetLogCode.NU1901,
                                 string.Format("Package '{0} {1}' has a reported vulnerability. Advisory Url: {2} Severity: {3}", package.Name, package.Version, result.AdvisoryUrl, result.Severity),
